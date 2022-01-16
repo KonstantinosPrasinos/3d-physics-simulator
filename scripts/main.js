@@ -3,12 +3,13 @@ import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/TransformControls.js';
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
-import {flyControls} from './controls.js';
+
+import {FlyControls} from './controls.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 
-let rayDirection, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
+let flyControls, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 
 function changeTimeStep(temp) {
@@ -16,44 +17,59 @@ function changeTimeStep(temp) {
 }
 
 function setCamera(cameraType) {
+    
     if (camera.type != cameraType) {
+        let transformControlsWereAttached = !(!transformControls.object);
+        // if (transformControlsWereAttached){
+        //     transformControls.detach()
+        // }
         switch (cameraType) {
             case "PerspectiveCamera":
+                flyControls.canLockOn = true;
                 camera = perspectiveCamera;
-                orbitControls.object = camera;
-                orbitControls.reset();
+                orbitControls.enabled = false;
+                transformControls.camera = camera;
+                transformControls.enabled = false;
+                
                 camera.updateMatrixWorld();
                 camera.updateProjectionMatrix();
                 break;
             case "OrthographicCamera":
+                flyControls.canLockOn = false;
                 camera = orthographicCamera;
                 orbitControls.object = camera;
                 orbitControls.reset();
+                orbitControls.enabled = true;
                 camera.updateMatrixWorld();
                 camera.updateProjectionMatrix();
                 break;
             default:
                 break;
         }
+        // if (transformControlsWereAttached){
+        //     transformControls.attach(simulation.objects[simulation.itemSelected].mesh)
+        // }
+        
     }
 }
 
-const canvasHandlerParams = {
-    canClickCanvas: true
-}
-
 function switchControls(controlsType) {
-    console.log("test");
     if (controlsType == 'transform') {
         if (simulation.itemSelected > -1) {
-            orbitControls.enabled = false;
+            flyControls.canLockOn = false;
+            if (camera.type != "PerspectiveCamera"){
+                orbitControls.enabled = false;
+            }
             transformControls.enabled = true;
             transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
         }
     } else {
+        flyControls.canLockOn = true;
         transformControls.detach();
         transformControls.enabled = false;
-        orbitControls.enabled = true;
+        if (camera.type != "PerspectiveCamera"){
+            orbitControls.enabled = true;
+        }
     }
 }
 
@@ -149,29 +165,33 @@ function updateStaticValues(bool) {
         document.getElementById("velocity-vectors-all").checked = false;
         document.getElementById("wireframe-toggle").checked = false;
         document.getElementById("collisionResponse-toggle").checked = false;
-        document.getElementById("object-name").innerText = false;
+        document.getElementById("object-name").innerText = "No item is selected";
     }
 
+}
+
+function roundToTwo(numb){
+    return Math.round((numb + Number.EPSILON) * 100) / 100;
 }
 
 function updateVarValues(bool) {
     if (bool) {
         if (simulation.itemSelected > -1) {
-            document.getElementById("position.x-input").value = simulation.objects[simulation.itemSelected].mesh.position.x;
-            document.getElementById("position.y-input").value = simulation.objects[simulation.itemSelected].mesh.position.y;
-            document.getElementById("position.z-input").value = simulation.objects[simulation.itemSelected].mesh.position.z;
-            document.getElementById("rotation.x-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.x;
-            document.getElementById("rotation.y-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.y;
-            document.getElementById("rotation.z-input").value = simulation.objects[simulation.itemSelected].mesh.rotation.z;
-            document.getElementById("velocity.x-input").value = simulation.objects[simulation.itemSelected].body.velocity.x;
-            document.getElementById("velocity.y-input").value = simulation.objects[simulation.itemSelected].body.velocity.y;
-            document.getElementById("velocity.z-input").value = simulation.objects[simulation.itemSelected].body.velocity.z;
-            document.getElementById("angularVelocity.x-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.x;
-            document.getElementById("angularVelocity.y-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.y;
-            document.getElementById("angularVelocity.z-input").value = simulation.objects[simulation.itemSelected].body.angularVelocity.z;
-            document.getElementById("force.x-input").value = simulation.objects[simulation.itemSelected].body.force.x;
-            document.getElementById("force.y-input").value = simulation.objects[simulation.itemSelected].body.force.y;
-            document.getElementById("force.z-input").value = simulation.objects[simulation.itemSelected].body.force.z;
+            document.getElementById("position.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.x);
+            document.getElementById("position.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.y);
+            document.getElementById("position.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.z);
+            document.getElementById("rotation.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.x);
+            document.getElementById("rotation.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.y);
+            document.getElementById("rotation.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.z);
+            document.getElementById("velocity.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.x);
+            document.getElementById("velocity.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.y);
+            document.getElementById("velocity.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.z);
+            document.getElementById("angularVelocity.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.x);
+            document.getElementById("angularVelocity.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.y);
+            document.getElementById("angularVelocity.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.z);
+            document.getElementById("force.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.x);
+            document.getElementById("force.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.y);
+            document.getElementById("force.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.z);
         }
     } else {
         document.getElementById("position.x-input").value = "";
@@ -229,22 +249,23 @@ function updateValuesWhileRunning(bool) {
 function initControls() {
     orbitControls = new OrbitControls(camera, renderer.domElement);
     transformControls = new TransformControls(camera, renderer.domElement);
-    let temp = new flyControls(perspectiveCamera, renderer.domElement);
-    // transformControls.addEventListener('change', render);
+    flyControls = new FlyControls(perspectiveCamera, renderer.domElement, scene, transformControls);
     transformControls.enabled = false;
+    orbitControls.enabled = true;
     scene.add(transformControls);
 }
+
 
 function initThree() {
     scene = new THREE.Scene();
 
-    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 1000);
+    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 10000);
     perspectiveCamera = new THREE.PerspectiveCamera(45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
     orthographicCamera.position.z = 50;
     perspectiveCamera.position.z = 50;
     scene.add(orthographicCamera);
     scene.add(perspectiveCamera);
-    camera = orthographicCamera
+    camera = orthographicCamera;
 
     renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true });
     renderer.setClearColor(0xffffff, 1);
@@ -258,6 +279,10 @@ function initCannon() {
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
     world.dt = timeStep / 2;
+    world.defaultContactMaterial.contactEquationStiffness = 1e7;
+    world.defaultContactMaterial.contactEquationRelaxation = 8;
+    world.defaultContactMaterial.friction = 0;
+    world.defaultContactMaterial.restitution = 0;
 }
 
 //Timed Functions
@@ -294,6 +319,11 @@ function animate() {
     if (statsOn) {
         stats.update();
     }
+
+    if (flyControls.pointerLock.isLocked){
+        flyControls.move();
+    }
+
     for (let i in simulation.objects) {
         if (simulation.objects[i].mesh.userData.hasVectors) {
             updateVectors(simulation.objects[i]);
@@ -325,7 +355,7 @@ function generateJSON() {
     let logObj = {};
     let timeLine = {}
     simulation.objects.forEach((item) => {
-        timeLine[item.mesh.uuid] = { name: item.mesh.name, mass: item.body.mass, position: { x: item.body.position.x, y: item.body.position.y, z: item.body.position.z }, velocity: { x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z }, rotation: { x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z }, angularVelocity: { x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z }, force: { x: item.body.force.x, y: item.body.force.y, z: item.body.force.z } };
+        timeLine[item.mesh.uuid] = { name: item.mesh.name, mass: item.body.mass, position: { x: item.body.position.x, y: item.body.position.y, z: item.body.position.z }, velocity: { x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z }, rotation: { x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z }, angularVelocity: { x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z }, force: { x: item.body.force.x, y: item.body.force.y, z: item.body.force.z }, isWireframe: item.mesh.material.wireframe, color: item.mesh.material.color.getHexString()};
         switch (item.mesh.geometry.type) {
             case "SphereGeometry":
                 timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radius * item.mesh.scale.x };
@@ -342,6 +372,8 @@ function generateJSON() {
         }
     });
     logObj[parseInt(world.time)] = timeLine;
+    logObj['camera'] = {type: camera.type, position: {x: camera.position.x, y: camera.position.y, z: camera.position.z}, rotation: {x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z}, zoom: camera.zoom};
+    logObj['world'] = {gravity: {x: world.gravity.x, y: world.gravity.y, z: world.gravity.z}}
     return logObj;
 }
 
@@ -741,9 +773,9 @@ function toggleResultantVelocityVector(object) {
     arrowHelper.visible = visible;
     arrowHelper.name = "resultantVelocityVector";
     arrowHelper.line.material.depthTest = false;
-    arrowHelper.line.renderOrder = Infinity;
+    arrowHelper.line.renderOrder = 10;
     arrowHelper.cone.material.depthTest = false;
-    arrowHelper.cone.renderOrder = Infinity;
+    arrowHelper.cone.renderOrder = 10;
     object.mesh.add(arrowHelper);
 }
 
@@ -897,96 +929,132 @@ let simulation = {
     placingObject: false,
     objectPlaceDist: 50,
     createBox(x, y, z, width, height, depth) {
-        let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
-        tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
-        world.addBody(tempBody);
+        if (!this.placingObject) {
+            let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
+            let tempBody = new CANNON.Body({
+                mass: 4
+            });
+            tempBody.addShape(shape);
+            tempBody.linearDamping = 0;
+            tempBody.angularDamping = 0;
+            world.addBody(tempBody);
 
-        let geometry = new THREE.BoxGeometry(width, height, depth);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        scene.add(tempMesh);
+            let geometry = new THREE.BoxGeometry(width, height, depth);
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let tempMesh = new THREE.Mesh(geometry, material);
+            tempMesh.userData.createsGravity = true;
+            tempMesh.userData.selectable = true;
+            tempMesh.userData.hasVectors = false;
+            scene.add(tempMesh);
 
-        tempMesh.name = generateName('Cube');
-        let box = {
-            body: tempBody,
-            mesh: tempMesh
+            tempMesh.name = generateName('Box');
+            let box = {
+                body: tempBody,
+                mesh: tempMesh
+            }
+            this.objects.push(box);
+            addItemToList(this.objects.length - 1);
+            this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+
+            if (isNaN(x)) {
+                tempBody.position.set(0, 0, 0);
+                tempMesh.position.set(0, 0, 0);
+                this.placeObject(box.mesh);
+            } else {
+                tempBody.position.set(x, y, z);
+                tempMesh.position.set(x, y, z);
+            }
         }
-        this.objects.push(box);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     },
     createSphere(x, y, z, radius) {
-        let shape = new CANNON.Sphere(radius);
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
-        tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
-        world.addBody(tempBody);
-        let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        scene.add(tempMesh);
+        if (!this.placingObject) {
+            let shape = new CANNON.Sphere(radius);
+            let tempBody = new CANNON.Body({
+                mass: 4
+            });
+            tempBody.addShape(shape);
+            tempBody.linearDamping = 0;
+            tempBody.angularDamping = 0;
+            world.addBody(tempBody);
 
-        tempMesh.name = generateName('Sphere');
-        let sphere = {
-            body: tempBody,
-            mesh: tempMesh
+            let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let tempMesh = new THREE.Mesh(geometry, material);
+            tempMesh.userData.createsGravity = true;
+            tempMesh.userData.selectable = true;
+            tempMesh.userData.hasVectors = false;
+            scene.add(tempMesh);
+
+            tempMesh.name = generateName('Sphere');
+            let sphere = {
+                body: tempBody,
+                mesh: tempMesh
+            }
+            this.objects.push(sphere);
+            addItemToList(this.objects.length - 1);
+            this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+
+            if (isNaN(x)) {
+                tempBody.position.set(0, 0, 0);
+                tempMesh.position.set(0, 0, 0);
+                this.placeObject(sphere.mesh);
+            } else {
+                tempBody.position.set(x, y, z);
+                tempMesh.position.set(x, y, z);
+            }
         }
-        this.objects.push(sphere);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
     },
     createCylinder(x, y, z, radius, height) {
-        let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
-        let tempBody = new CANNON.Body({
-            mass: 4
-        });
+        if (!this.placingObject){
+            let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
+            let tempBody = new CANNON.Body({
+                mass: 4
+            });
 
-        //Align three js to cannon js rotation
-        var quat = new CANNON.Quaternion();
-        quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-        var translation = new CANNON.Vec3(0, 0, 0);
-        shape.transformAllPoints(translation, quat);
+            //Align three js to cannon js rotation
+            var quat = new CANNON.Quaternion();
+            quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+            var translation = new CANNON.Vec3(0, 0, 0);
+            shape.transformAllPoints(translation, quat);
 
-        tempBody.addShape(shape);
-        tempBody.position.set(x, y, z);
-        world.addBody(tempBody);
-        let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-        let tempMesh = new THREE.Mesh(geometry, material);
-        tempMesh.position.set(x, y, z);
-        tempMesh.userData.createsGravity = true;
-        tempMesh.userData.selectable = true;
-        tempMesh.userData.hasVectors = false;
-        tempMesh.userData.previousScale = { x: 1, z: 1 };
-        scene.add(tempMesh);
+            tempBody.addShape(shape);
+            tempBody.linearDamping = 0;
+            tempBody.angularDamping = 0;
+            world.addBody(tempBody);
 
-        tempMesh.name = generateName('Cylinder');
-        let cylinder = {
-            body: tempBody,
-            mesh: tempMesh
+            let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let tempMesh = new THREE.Mesh(geometry, material);
+            tempMesh.userData.createsGravity = true;
+            tempMesh.userData.selectable = true;
+            tempMesh.userData.hasVectors = false;
+            tempMesh.userData.previousScale = { x: 1, z: 1 };
+            scene.add(tempMesh);
+
+            tempMesh.name = generateName('Cylinder');
+            let cylinder = {
+                body: tempBody,
+                mesh: tempMesh
+            }
+            this.objects.push(cylinder);
+            addItemToList(this.objects.length - 1);
+            this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
+
+            if (isNaN(x)) {
+                tempBody.position.set(0, 0, 0);
+                tempMesh.position.set(0, 0, 0);
+                this.placeObject(cylinder.mesh);
+            } else {
+                tempBody.position.set(x, y, z);
+                tempMesh.position.set(x, y, z);
+            }
         }
-        this.objects.push(cylinder);
-        addItemToList(this.objects.length - 1);
-        this.objects.sort((a, b) => (a.mesh.name > b.mesh.name) ? 1 : -1);
-        this.placeObject(cylinder.mesh);
     },
     placeObject(object){
         this.placingObject = true;
         let orbitControlsWereEnabled;
+        let wasAbleToLock = flyControls.canLockOn;
+        flyControls.canLockOn = false;
         function findPosition(event){
             let mouseVector = new THREE.Vector2();
             let rayCaster = new THREE.Raycaster();
@@ -1001,7 +1069,6 @@ let simulation = {
         }
 
         function handleWheel(event){
-            console.log(transformControls.enabled)
             if (event.wheelDeltaY < 0){
                 if (simulation.objectPlaceDist > 5){
                     simulation.objectPlaceDist -= 5;
@@ -1016,7 +1083,6 @@ let simulation = {
         function handleShiftDown(event){
             if (event.code == 'ShiftLeft') {
                 if (orbitControls.enabled){
-                    console.log("stopping orbit controls");
                     orbitControls.enabled = false;
                     orbitControlsWereEnabled = true;
                 }
@@ -1026,7 +1092,6 @@ let simulation = {
 
         function stopShift(){
             if (orbitControlsWereEnabled){
-                console.log("starting orbit controls")
                 orbitControls.enabled = true;
             }
             canvas.removeEventListener("wheel", handleWheel);
@@ -1042,6 +1107,9 @@ let simulation = {
             canvas.removeEventListener("mousemove", findPosition);
             canvas.removeEventListener("click", removeEventListeners);
             simulation.placingObject = false;
+            if (wasAbleToLock){
+                flyControls.canLockOn = true;
+            }
         }
         canvas.addEventListener("click", removeEventListeners)
     },
@@ -1053,7 +1121,6 @@ let simulation = {
         mouseVector.y = -(event.offsetY / parseInt(window.getComputedStyle(canvas).height)) * 2 + 1;
 
         rayCaster.setFromCamera(mouseVector, camera);
-        rayDirection = rayCaster.ray.direction;
 
         return rayCaster.intersectObjects(scene.children);
     },
@@ -1089,5 +1156,4 @@ initControls();
 
 animate();
 
-
-export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning };
+export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world};

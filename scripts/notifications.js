@@ -23,9 +23,9 @@ export let notificationList = {
     tutSphere: new Notification("Tutorial", "By clicking this button you are adding a sphere to the simulation. (Note: it is following your cursor)."),
     tutCylinder: new Notification("Tutorial", "By clicking this button you are adding a cylinder to the simulation. (Note: it is following your cursor)."),
     tutTop: new Notification("Tutorial", "On the top bar you can see in order: the object selection buttons, play-reset, the current mode and the current time. On the right you can see the button to toggle the visibility of the right bar"),
-    tutTranslate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the position translate arrows."),
-    tutScale: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the scale arrows."),
-    tutRotate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the rotation circles."),
+    tutTranslate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the position translate vectors. You can drag them to move the object. By clicking twice you can deselect the controls."),
+    tutScale: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the scale vectors. You can drag them to change the scale of the object. By clicking twice you can deselect the controls."),
+    tutRotate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the rotation vectors. You can drag them to change the rotation of the object. By clicking twice you can deselect the controls."),
     tutPlay: new Notification("Tutorial", "With this you can start the simulation. If the simulation is running this will change into a pause button."),
     tutReset: new Notification("Tutorial", "With this you can reset the simulation to the previously saved Setup state."),
     tutRight: new Notification("Tutorial", "This opens the object ui. In this you can see and edit all the information regarding an object, as well as a list of all the objects. You need to select an object to see the tutorial for the object attributes."),
@@ -49,5 +49,6 @@ export let notificationList = {
     tutUpload: new Notification("Tutorial", "Using this button you can upload a json file you may have previously downloaded, to load a timestamp of all objects on the scene."),
     tutLog: new Notification("Tutorial", "Here you can print the data of all objects in the scene either manually, using the print button, or every number of timesteps, using the respective input. You can also clear the log with the clear button."),
     tutDownloads: new Notification("Tutorial", "Using these buttons you can download the log either in a txt format or in a json format. You can either download the entire log, or only the current timestamp."),
-    copyEmail: new Notification("Copied to Clipboard", "konstantinos.prasinos@gmail.com")
+    copyEmail: new Notification("Copied to Clipboard", "konstantinos.prasinos@gmail.com"),
+    simulationRunning: new Notification("Warning", "you cannot do this while the simulation is running.")
 }
