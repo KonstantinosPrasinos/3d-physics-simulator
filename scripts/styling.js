@@ -563,39 +563,59 @@ document.getElementById("collapse-right-ui-button").onclick = function toggleRig
 
 let libraryContainer = document.getElementById('library-container');
 
-function toggleLibrary(){
+function handleLibrary() {
     function toggleVisibility() { libraryUi.style.visibility = 'hidden'; }
-    if (window.getComputedStyle(libraryUi).visibility == 'hidden'){
-        let timeline = gsap.timeline();
-        libraryUi.style.visibility = 'visible';
-        timeline.to(libraryUi, {duration: 0.2, width: '20em'})
-        .to(libraryContainer, {duration: 0.2, opacity: 1});
+    function toggleLibrary() {
+        if (window.getComputedStyle(libraryUi).visibility == 'hidden') {
+            let timeline = gsap.timeline();
+            libraryUi.style.visibility = 'visible';
+            timeline.to(libraryUi, { duration: 0.2, width: '20em' })
+                .to(libraryContainer, { duration: 0.2, opacity: 1 });
+        } else {
+            let timeline = gsap.timeline();
+            timeline.to(libraryContainer, { duration: 0.2, opacity: 0 })
+                .to(libraryUi, { duration: 0.2, width: '0px', onComplete: toggleVisibility });
+        }
+    }
+    console.log('test');
+    if (window.getComputedStyle(eventHandlerUi).visibility == 'visible'){
+        console.log('test2');
+        handleEventsUi();
+        setTimeout(toggleLibrary, 400);
     } else {
-        let timeline = gsap.timeline();
-        timeline.to(libraryContainer, {duration: 0.2, opacity: 0})
-        .to(libraryUi, {duration: 0.2, width: '0px', onComplete: toggleVisibility});
+        console.log('test');
+        toggleLibrary();
     }
 }
 
-document.getElementById('library-button').onclick = document.getElementById('close-library').onclick = toggleLibrary;
+document.getElementById('library-button').onclick = document.getElementById('close-library').onclick = handleLibrary;
 
 let eventHandlerContainer = document.getElementById('event-handler-container');
 
-function toggleEventsUi(){
+function handleEventsUi(){
     function toggleVisibility() { eventHandlerUi.style.visibility = 'hidden'; }
-    if (window.getComputedStyle(eventHandlerUi).visibility == 'hidden'){
-        let timeline = gsap.timeline();
-        eventHandlerUi.style.visibility = 'visible';
-        timeline.to(eventHandlerUi, {duration: 0.2, width: '20em'})
-        .to(eventHandlerContainer, {duration: 0.2, opacity: 1});
-    } else {
-        let timeline = gsap.timeline();
-        timeline.to(eventHandlerContainer, {duration: 0.2, opacity: 0})
-        .to(eventHandlerUi, {duration: 0.2, width: '0px', onComplete: toggleVisibility});
+    function toggleEventsUi() {
+        if (window.getComputedStyle(eventHandlerUi).visibility == 'hidden') {
+            let timeline = gsap.timeline();
+            eventHandlerUi.style.visibility = 'visible';
+            timeline.to(eventHandlerUi, { duration: 0.2, width: '20em' })
+                .to(eventHandlerContainer, { duration: 0.2, opacity: 1 });
+        } else {
+            let timeline = gsap.timeline();
+            timeline.to(eventHandlerContainer, { duration: 0.2, opacity: 0 })
+                .to(eventHandlerUi, { duration: 0.2, width: '0px', onComplete: toggleVisibility });
+        }
     }
+    if (window.getComputedStyle(libraryUi).visibility == 'visible'){
+        handleLibrary();
+        setTimeout(toggleEventsUi, 400);
+    } else {
+        toggleEventsUi();
+    }
+    
 }
 
-document.getElementById('actions-button').onclick = document.getElementById('close-events-handler').onclick = toggleEventsUi;
+document.getElementById('actions-button').onclick = document.getElementById('close-events-handler').onclick = handleEventsUi;
 
 function handleSettingsOpen(){
     if (showNotifications && doTutorial && window.getComputedStyle(document.getElementById("settings-box")).visibility == "hidden"){
