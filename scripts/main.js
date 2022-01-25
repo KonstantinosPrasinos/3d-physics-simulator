@@ -278,7 +278,7 @@ function initCannon() {
     world.gravity.set(0, 0, 0);
     world.broadphase = new CANNON.NaiveBroadphase();
     world.solver.iterations = 10;
-    world.dt = timeStep / 2;
+    // world.dt = timeStep;
     world.defaultContactMaterial.contactEquationStiffness = 1e7;
     world.defaultContactMaterial.contactEquationRelaxation = 8;
     world.defaultContactMaterial.friction = 0;
@@ -295,7 +295,7 @@ function attemptPrintPerStep() {
 }
 
 function updatePhysics() {
-    world.step(world.dt);
+    world.step(timeStep * 2, timeStep * 2, 1);
     attemptPrintPerStep();
     simulation.objects.forEach(element => {
         element.mesh.position.copy(element.body.position);
@@ -305,7 +305,7 @@ function updatePhysics() {
 }
 
 function render() {
-    topTime.innerText = parseFloat(world.time).toFixed(3);
+    topTime.innerText = (parseFloat(world.time) / 2).toFixed(3);
     renderer.render(scene, camera);
 }
 
@@ -877,6 +877,8 @@ async function copyobjects() {
                         copyBody[key] = simulation.objects[i].body[key];
                     } else if (key === "invInertiaWorldSolve") {
                         copyBody[key] = simulation.objects[i].body[key];
+                    } else if (key ==="_listeners") {
+                        copyBody[key] = simulation.objects[i].body[key];
                     } else {
                         copyBody[key] = simulation.objects[i].body[key].clone();
                     }
@@ -964,6 +966,11 @@ let simulation = {
                 tempBody.position.set(x, y, z);
                 tempMesh.position.set(x, y, z);
             }
+            tempBody.addEventListener('collide', function(e) {
+                let time = world.time / 2;
+                //Time of collision
+                console.log(time, time - timeStep * 2);
+            });
         }
     },
     createSphere(x, y, z, radius) {

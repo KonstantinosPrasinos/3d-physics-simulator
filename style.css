@@ -9,7 +9,7 @@
     #top-ui {
         height: 5em;
     }
-    #library-ui {
+    .left-popup {
         height: calc(100% - 5em);
         top: 5em;
     }
@@ -30,7 +30,7 @@
     #top-ui {
         height: 2.5em;
     }
-    #library-ui {
+    .left-popup {
         height: calc(100% - 2.5em);
         top: 2.5em;
     }
@@ -271,6 +271,11 @@ a {
     bottom: 5vh;
     -webkit-mask-image:  url(/assets/collection.svg);
     mask-image: url(assets/collection.svg);
+}
+#actions-button {
+    bottom: 9vh;
+    -webkit-mask-image:  url(/assets/actions.svg);
+    mask-image: url(assets/actions.svg);
 }
 #add-cube-button {
     -webkit-mask-image:  url(/assets/cube.svg);
@@ -961,7 +966,7 @@ input {
     margin-right: 0.25em
 }
 
-#library-ui {
+.left-popup {
     overflow: auto;
     overflow-x: hidden;
     visibility: hidden;
@@ -972,11 +977,11 @@ input {
     border-right: 2px solid var(--primary-color);
 }
 
-#library-title {
+.popup-title {
     margin-top: 1em;
 }
 
-#library-container {
+.popup-container {
     opacity: 0;
 }
 
@@ -998,5 +1003,53 @@ input {
     border-radius: 0.5em;
 }
 .content-title {
+    display: inline-block;
+}
+
+#add-event {
+    float: none;
+    margin-top: 2em;
+    margin-left: 0;
+}
+
+.dropdown-selector {
+    display: inline-block;
+}
+.dropdown-selector:hover .dropdown-container{
+    display: block
+}
+.event-field {
+    display: inline;
+    margin-left: 0.3em;
+}
+.dropdown-container {
+    display: none;
+    position: absolute;
+    max-height: 3em;
+    overflow: auto;
+    overflow-x: hidden;
+    border: 2px solid var(--secondary-color);
+    border-top-width: 3px;
+    background-color: var(--primary-color);
+    padding: 0.2em;
+    border-radius: 0 0.5em 0.5em 0.5em;
+}
+.event-input-text {
+    border-bottom: 2px solid var(--secondary-color);
+}
+.event-input-text:hover {
+    cursor: pointer;
+}
+.dropdown-option {
+    width: 50px;
+}
+.dropdown-option:hover {
+    cursor: pointer;
+}
+.event-delete-button {
+    margin-right: 1em;
+    display: none;
+}
+.event-node:hover .event-delete-button {
     display: inline-block;
 }
