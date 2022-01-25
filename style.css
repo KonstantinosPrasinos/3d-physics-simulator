@@ -1047,9 +1047,16 @@ input {
     cursor: pointer;
 }
 .event-delete-button {
-    margin-right: 1em;
-    display: none;
+    margin-right: 0.75em;
+    top: 0.35em;
+    float: none;
 }
-.event-node:hover .event-delete-button {
-    display: inline-block;
+
+.disabled-button {
+    filter: brightness(85%);
+    cursor: not-allowed;
+}
+.disabled-button:active {
+    background-color: var(--secondary-color);
+    transform: none;
 }

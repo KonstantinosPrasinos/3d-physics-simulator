@@ -8,9 +8,11 @@ import {FlyControls} from './controls.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
+let togglePauseButton = document.getElementById("top-play");
 
 let flyControls, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
+let actionList = [];
 
 function changeTimeStep(temp) {
     timeStep = temp;
@@ -71,6 +73,23 @@ function switchControls(controlsType) {
             orbitControls.enabled = true;
         }
     }
+}
+
+function pauseSimulation(){
+    if (!simulation.isPaused){
+        togglePauseButton.classList.remove('top-pause');
+        togglePauseButton.classList.add('top-play');
+    }
+    simulation.isPaused = true;
+}
+
+function resumeSimulation(){
+    if (simulation.isPaused){
+        togglePauseButton.classList.remove('top-play');
+        togglePauseButton.classList.add('top-pause');
+        
+    }
+    simulation.isPaused = false;
 }
 
 function setDisabledPhysical(bool) {
@@ -287,6 +306,76 @@ function initCannon() {
 
 //Timed Functions
 
+function handleActionOutput(selection, actionType){
+    switch (selection) {
+        case 'print':
+            printToLog()
+            break;
+        case 'pause':
+            pauseSimulation();
+            break;
+        case 'both':
+            printToLog();
+            pauseSimulation();
+            break;
+        default:
+            break;
+    }
+}
+
+function handleActions() {
+    let object, targetName, target;
+    for (let action of actionList) {
+        if (action.selection1 && action.selection2 && action.selection3){
+            if (action.selection1 == 'time'){
+                if (!isNaN(action.selection2) && (parseFloat(action.selection2) > world.time / 2 - timeStep && parseFloat(action.selection2) < world.time / 2 + timeStep)){
+                    // handleActionOutput();
+                }
+            } else if (action.selection4){
+                switch (action.selection2) {
+                    case 'collides':
+                        object = simulation.objects.find(object => object.mesh.uuid == action.selection1);
+                        if (object.mesh.userData.collidedWith) {
+                            object.mesh.userData.collidedWith.forEach(targetID => {
+                                target = simulation.objects.find(object2 => object2.body.id == targetID);
+                                targetName = target.mesh.name;
+                                if (action.selection3 == 'anything') {
+                                    console.log(`Collision case 1 ${object.mesh.name} collided with ${targetName}`);
+                                    // handleActionOutput();
+                                } else if (target.mesh.uuid == action.selection3) {
+                                    console.log(`Collision case 2 ${object.mesh.name} collided with ${targetName}`);
+                                    // handleActionOutput();
+                                } else {
+                                    console.log(target.mesh.uuid, action.selection3, target.mesh.name, simulation.objects);
+                                }
+    
+                            })
+                            object.mesh.userData.collidedWith.length = 0;
+                        }
+                        break;
+                    case 'positions.x':
+                    case 'positions.y':
+                    case 'positions.z':
+                    case 'rotation.x':
+                    case 'rotation.y':
+                    case 'rotation.z':
+                        object = simulation.objects.find(object => object.mesh.uuid == action.selection1);
+                        if (action.selection3 == object.mesh[action.selection2]){
+                            // handleActionOutput();
+                        }
+                        break;
+                    default:
+                        object = simulation.objects.find(object => object.mesh.uuid == action.selection1);
+                        if (action.selection3 == object.body[action.selection2]){
+                            // handleActionOutput();
+                        } 
+                        break;
+                }
+            }
+        }
+    }
+}
+
 function attemptPrintPerStep() {
     if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time) {
         printToLog();
@@ -313,6 +402,7 @@ function animate() {
     requestAnimationFrame(animate);
     if (!simulation.isPaused) {
         updatePhysics();
+        handleActions();
     }
     render();
 
@@ -947,6 +1037,7 @@ let simulation = {
             tempMesh.userData.createsGravity = true;
             tempMesh.userData.selectable = true;
             tempMesh.userData.hasVectors = false;
+            tempMesh.userData.collidedWith = [];
             scene.add(tempMesh);
 
             tempMesh.name = generateName('Box');
@@ -967,9 +1058,7 @@ let simulation = {
                 tempMesh.position.set(x, y, z);
             }
             tempBody.addEventListener('collide', function(e) {
-                let time = world.time / 2;
-                //Time of collision
-                console.log(time, time - timeStep * 2);
+                tempMesh.userData.collidedWith.push(e.body.id);
             });
         }
     },
@@ -1163,4 +1252,4 @@ initControls();
 
 animate();
 
-export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world};
+export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, pauseSimulation, resumeSimulation};

@@ -1,4 +1,4 @@
-import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world} from './main.js';
+import {simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, resumeSimulation, pauseSimulation} from './main.js';
 
 import {notificationList} from './notifications.js';
 
@@ -350,23 +350,6 @@ function synchronizeSize(axis){
     simulation.objects[simulation.itemSelected].body.updateMassProperties();
 }
 
-function pauseSimulation(){
-    if (!simulation.isPaused){
-        togglePauseButton.classList.remove('top-pause');
-        togglePauseButton.classList.add('top-play');
-    }
-    simulation.isPaused = true;
-}
-
-function resumeSimulation(){
-    if (simulation.isPaused){
-        togglePauseButton.classList.remove('top-play');
-        togglePauseButton.classList.add('top-pause');
-        
-    }
-    simulation.isPaused = false;
-}
-
 function setTheme(theme) {
     let customGridContainer = document.getElementById("custom-grid-container");
     if (theme != storedTheme) {
@@ -577,13 +560,10 @@ function handleLibrary() {
                 .to(libraryUi, { duration: 0.2, width: '0px', onComplete: toggleVisibility });
         }
     }
-    console.log('test');
     if (window.getComputedStyle(eventHandlerUi).visibility == 'visible'){
-        console.log('test2');
         handleEventsUi();
         setTimeout(toggleLibrary, 400);
     } else {
-        console.log('test');
         toggleLibrary();
     }
 }
@@ -641,6 +621,7 @@ document.getElementById("custom-theme-button").onclick = toggleCustomTheme;
 document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
         simulation.isRunning = true;
+        document.getElementById("top-replay").classList.remove('disabled-button');
         if (transformControls.enabled){
             switch (transformControls.mode) {
                 case 'translate':
@@ -686,6 +667,7 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
             updateValuesWhileRunning(true);
             switchControls('transform');
         }
+        document.getElementById("top-replay").classList.add('disabled-button');
     }
 }
 
@@ -1547,14 +1529,11 @@ class Event {
     }
 }
 
-let listOfEvents = [];
-
 function deleteEventListeners(event, startN){
     for (let i = startN; i < 4; i++) {
         for (let j in event[`event${i}`]){
             document.removeEventListener('click', event[`event${i}`][j])
         }
-        console.log(event, i);
         event[`event${i}`].length = 0;
         event[`selection${i}`] = null;
     }
@@ -1573,7 +1552,7 @@ function deleteLaterSelections(parent, n, id){
         }
     }
 
-    const event = listOfEvents.find(element => element.id == id);
+    const event = actionList.find(element => element.id == id);
     deleteEventListeners(event, n+1);
 }
 
@@ -1623,14 +1602,14 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
                             if (e.target && e.target.id == `target-${event.id}-${fieldN}-anything`){
                                 document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = 'anything';
                                 event[`selection${fieldN}`] = 'anything';
-                                deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                deleteLaterSelections(parent, fieldN, event.id);
                                 createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '');
                             }
                         }
 
                         event[`event${fieldN}`].push(selectionTargetAnything);
 
-                        document.addEventListener('click', eventListenersObj[`${fieldN}-${event.id}-anything`]);
+                        document.addEventListener('click', selectionTargetAnything);
                     }
         
                     simulation.objects.forEach(object => {
@@ -1644,7 +1623,7 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
                                 if (e.target && e.target.id == `target-${event.id}-${fieldN}-${object.mesh.uuid}`){
                                     document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = object.mesh.name;
                                     event[`selection${fieldN}`] = object.mesh.uuid;
-                                    deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                    deleteLaterSelections(parent, fieldN, event.id);
                                     if (fieldN == 1){
                                         createSelections('dropdown', 'parameters', event, parent, fieldN+1, '', '');
                                     } else {
@@ -1679,7 +1658,7 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
                             if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter.replace(' ', '.')}`){
                                 if (parameter == 'collides'){
                                     document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
-                                    deleteLaterSelections(parent, fieldN, event.id, eventListeners);
+                                    deleteLaterSelections(parent, fieldN, event.id);
                                     createSelections('dropdown', 'target', event, parent, fieldN+1, ' with ', '');
                                 } else {
                                     document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = `'s ${parameter}`;
@@ -1715,7 +1694,6 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
                             if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter}`){
                                 document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
                                 event[`selection${fieldN}`] = parameter;
-                                console.log(listOfEvents);
                             }
                         }
 
@@ -1782,7 +1760,7 @@ function addDeleteEventButton(parent, event){
             deleteEventListeners(event, 1);
             document.getElementById('events-container').removeChild(parent);
             document.removeEventListener('click', event.deleteButtonEvent);
-            listOfEvents.splice(listOfEvents.indexOf(event), 1);
+            actionList.splice(actionList.indexOf(event), 1);
         }
     }
 
@@ -1793,30 +1771,16 @@ function addDeleteEventButton(parent, event){
 
 function createEventField(){
     let event = new Event();
-    listOfEvents.push(event);
+    actionList.push(event);
 
     let node = document.createElement('div');
     node.classList.add('event-node');
     node.setAttribute('id', `event-node-${event.id}`);
-    node.innerHTML += 'When';
     addDeleteEventButton(node, event);
+    node.innerHTML += 'When';
 
     createSelections('dropdown', 'target', event, node, 1, '', '');
     document.getElementById('events-container').appendChild(node);
 }
 
 document.getElementById('add-event').onclick = createEventField;
-
-
-// //use this to fix it
-// let t = [];
-// let o = function(){console.log("test")}
-// t.push(o);
-
-// let k = function(){console.log("ending")
-// document.removeEventListener('mouseover', t[0])};
-// t.push(k);
-
-// document.addEventListener('click', t[1]);
-
-// document.addEventListener('mouseover', t[0]);
