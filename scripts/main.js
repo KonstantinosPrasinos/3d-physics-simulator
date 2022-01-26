@@ -89,6 +89,7 @@ function resumeSimulation(){
         togglePauseButton.classList.add('top-pause');
         
     }
+    simulation.objects.forEach(element => setPreviousMetrics(element));
     simulation.isPaused = false;
 }
 
@@ -189,28 +190,29 @@ function updateStaticValues(bool) {
 
 }
 
-function roundToTwo(numb){
-    return Math.round((numb + Number.EPSILON) * 100) / 100;
+function roundToDecimal(numb, decimal){
+    return Math.round((numb + Number.EPSILON) * (10 ** decimal)) / (10 ** decimal);
 }
+
 
 function updateVarValues(bool) {
     if (bool) {
         if (simulation.itemSelected > -1) {
-            document.getElementById("position.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.x);
-            document.getElementById("position.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.y);
-            document.getElementById("position.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.position.z);
-            document.getElementById("rotation.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.x);
-            document.getElementById("rotation.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.y);
-            document.getElementById("rotation.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].mesh.rotation.z);
-            document.getElementById("velocity.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.x);
-            document.getElementById("velocity.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.y);
-            document.getElementById("velocity.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.velocity.z);
-            document.getElementById("angularVelocity.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.x);
-            document.getElementById("angularVelocity.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.y);
-            document.getElementById("angularVelocity.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.angularVelocity.z);
-            document.getElementById("force.x-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.x);
-            document.getElementById("force.y-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.y);
-            document.getElementById("force.z-input").value = roundToTwo(simulation.objects[simulation.itemSelected].body.force.z);
+            document.getElementById("position.x-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].mesh.position.x, 2);
+            document.getElementById("position.y-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].mesh.position.y, 2);
+            document.getElementById("position.z-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].mesh.position.z, 2);
+            document.getElementById("rotation.x-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].mesh.rotation.x, 2);
+            document.getElementById("rotation.y-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].mesh.rotation.y, 2);
+            document.getElementById("rotation.z-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].mesh.rotation.z, 2);
+            document.getElementById("velocity.x-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.velocity.x, 2);
+            document.getElementById("velocity.y-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.velocity.y, 2);
+            document.getElementById("velocity.z-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.velocity.z, 2);
+            document.getElementById("angularVelocity.x-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.angularVelocity.x, 2);
+            document.getElementById("angularVelocity.y-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.angularVelocity.y, 2);
+            document.getElementById("angularVelocity.z-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.angularVelocity.z, 2);
+            document.getElementById("force.x-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.force.x, 2);
+            document.getElementById("force.y-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.force.y, 2);
+            document.getElementById("force.z-input").value = roundToDecimal(simulation.objects[simulation.itemSelected].body.force.z, 2);
         }
     } else {
         document.getElementById("position.x-input").value = "";
@@ -306,16 +308,28 @@ function initCannon() {
 
 //Timed Functions
 
-function handleActionOutput(selection, actionType){
+function handleActionPrint(actionType, param1, param2, param3){
+    if (actionType == 'time'){
+        printToLog('Time of action reached')
+    } else if (actionType == 'collision'){
+        printToLog(`Collision between ${param1} and ${param2}`);
+    } else {
+        printToLog(`${actionType}'s ${param1} ${param2} reached ${roundToDecimal(param3, 3)}`);
+    }
+}
+
+function handleActionOutput(selection, actionType, param1, param2, param3){
     switch (selection) {
         case 'print':
-            printToLog()
+            handleActionPrint(actionType, param1, param2, param3);
             break;
         case 'pause':
+            console.log('paused');
             pauseSimulation();
             break;
         case 'both':
-            printToLog();
+            console.log('test');
+            handleActionOutput(actionType, param1, param2, param3);
             pauseSimulation();
             break;
         default:
@@ -324,12 +338,12 @@ function handleActionOutput(selection, actionType){
 }
 
 function handleActions() {
-    let object, targetName, target;
+    let object, targetName, target, firstHalf, secondHalf;
     for (let action of actionList) {
         if (action.selection1 && action.selection2 && action.selection3){
             if (action.selection1 == 'time'){
                 if (!isNaN(action.selection2) && (parseFloat(action.selection2) > world.time / 2 - timeStep && parseFloat(action.selection2) < world.time / 2 + timeStep)){
-                    // handleActionOutput();
+                    handleActionOutput(action.selection3);
                 }
             } else if (action.selection4){
                 switch (action.selection2) {
@@ -340,34 +354,33 @@ function handleActions() {
                                 target = simulation.objects.find(object2 => object2.body.id == targetID);
                                 targetName = target.mesh.name;
                                 if (action.selection3 == 'anything') {
-                                    console.log(`Collision case 1 ${object.mesh.name} collided with ${targetName}`);
-                                    // handleActionOutput();
+                                    handleActionOutput(action.selection4, object.mesh.name, targetName);
                                 } else if (target.mesh.uuid == action.selection3) {
-                                    console.log(`Collision case 2 ${object.mesh.name} collided with ${targetName}`);
-                                    // handleActionOutput();
-                                } else {
-                                    console.log(target.mesh.uuid, action.selection3, target.mesh.name, simulation.objects);
+                                    handleActionOutput(action.selection4, object.mesh.name, targetName);
                                 }
-    
                             })
                             object.mesh.userData.collidedWith.length = 0;
                         }
                         break;
-                    case 'positions.x':
-                    case 'positions.y':
-                    case 'positions.z':
+                    case 'position.x':
+                    case 'position.y':
+                    case 'position.z':
                     case 'rotation.x':
                     case 'rotation.y':
                     case 'rotation.z':
                         object = simulation.objects.find(object => object.mesh.uuid == action.selection1);
-                        if (action.selection3 == object.mesh[action.selection2]){
-                            // handleActionOutput();
+                        firstHalf = action.selection2.slice(0, action.selection2.indexOf('.'));
+                        secondHalf = action.selection2.slice(action.selection2.indexOf('.') + 1, action.selection2.length);
+                        if (action.selection3 <= object.mesh[firstHalf][secondHalf] && action.selection3 > object.mesh.userData.previousMetrics[firstHalf][secondHalf]){
+                           handleActionOutput(action.selection4, object.mesh.name, firstHalf, secondHalf, object.mesh[firstHalf][secondHalf]);
                         }
                         break;
                     default:
                         object = simulation.objects.find(object => object.mesh.uuid == action.selection1);
-                        if (action.selection3 == object.body[action.selection2]){
-                            // handleActionOutput();
+                        firstHalf = action.selection2.slice(0, action.selection2.indexOf('.'));
+                        secondHalf = action.selection2.slice(action.selection2.indexOf('.') + 1, action.selection2.length);
+                        if (action.selection3 <= object.body[firstHalf][secondHalf] && action.selection3 > object.mesh.userData.previousMetrics[firstHalf][secondHalf]){
+                            handleActionOutput(action.selection4, object.mesh.name, action.selection2.replace('.', ' '), object.body[action.selection2]);
                         } 
                         break;
                 }
@@ -378,12 +391,31 @@ function handleActions() {
 
 function attemptPrintPerStep() {
     if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time) {
-        printToLog();
+        printToLog('Print step reached');
         previousLogedTime = world.time;
     }
 }
 
+function setPreviousMetrics(object){
+    object.mesh.userData.previousMetrics.position.x = object.mesh.position.x;
+    object.mesh.userData.previousMetrics.position.y = object.mesh.position.y;
+    object.mesh.userData.previousMetrics.position.z = object.mesh.position.z;
+    object.mesh.userData.previousMetrics.rotation.x = object.mesh.rotation.x;
+    object.mesh.userData.previousMetrics.rotation.y = object.mesh.rotation.y;
+    object.mesh.userData.previousMetrics.rotation.z = object.mesh.rotation.z;
+    object.mesh.userData.previousMetrics.velocity.x = object.body.velocity.x;
+    object.mesh.userData.previousMetrics.velocity.y = object.body.velocity.y;
+    object.mesh.userData.previousMetrics.velocity.z = object.body.velocity.z;
+    object.mesh.userData.previousMetrics.angularVelocity.x = object.body.angularVelocity.x;
+    object.mesh.userData.previousMetrics.angularVelocity.y = object.body.angularVelocity.y;
+    object.mesh.userData.previousMetrics.angularVelocity.z = object.body.angularVelocity.z;
+    object.mesh.userData.previousMetrics.force.x = object.body.force.x;
+    object.mesh.userData.previousMetrics.force.y = object.body.force.y;
+    object.mesh.userData.previousMetrics.force.z = object.body.force.z;
+}
+
 function updatePhysics() {
+    simulation.objects.forEach(element => setPreviousMetrics(element));
     world.step(timeStep * 2, timeStep * 2, 1);
     attemptPrintPerStep();
     simulation.objects.forEach(element => {
@@ -467,8 +499,8 @@ function generateJSON() {
     return logObj;
 }
 
-function printToLog() {
-    let log = document.getElementById("log");
+function printToLog(reason) {
+    let log = document.getElementById('log');
     if (!simulation.savedLog) {
         simulation.savedLog = generateJSON();
     } else {
@@ -477,7 +509,7 @@ function printToLog() {
             simulation.savedLog[index] = line[index];
         }
     }
-    log.innerHTML += `At time ${parseFloat(world.time).toFixed(3)}:`;
+    log.innerHTML += `Reason of print: ${reason}. At time ${parseFloat(world.time).toFixed(3)}:`;
     if (simulation.objects.length) {
         log.innerHTML += "<br>";
         log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
@@ -1009,6 +1041,16 @@ function generateName(type) {
     return type + '-' + count;
 }
 
+class PreviousMetrics {
+    constructor(x, y, z) {
+        this.position = {x: x, y: y, z: z};
+        this.velocity = {x: 0, y: 0, z: 0};
+        this.rotation = {x: 0, y: 0, z: 0};
+        this.angularVelocity = {x: 0, y: 0, z: 0};
+        this.force = {x: 0, y: 0, z: 0};
+    }
+}
+
 //Simulation Object
 
 let simulation = {
@@ -1038,6 +1080,7 @@ let simulation = {
             tempMesh.userData.selectable = true;
             tempMesh.userData.hasVectors = false;
             tempMesh.userData.collidedWith = [];
+            tempMesh.userData.previousMetrics = new PreviousMetrics(x == 'none' ? 0 : x, y, z);
             scene.add(tempMesh);
 
             tempMesh.name = generateName('Box');
@@ -1108,9 +1151,9 @@ let simulation = {
             });
 
             //Align three js to cannon js rotation
-            var quat = new CANNON.Quaternion();
+            let quat = new CANNON.Quaternion();
             quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-            var translation = new CANNON.Vec3(0, 0, 0);
+            let translation = new CANNON.Vec3(0, 0, 0);
             shape.transformAllPoints(translation, quat);
 
             tempBody.addShape(shape);
@@ -1203,6 +1246,9 @@ let simulation = {
             canvas.removeEventListener("mousemove", findPosition);
             canvas.removeEventListener("click", removeEventListeners);
             simulation.placingObject = false;
+            object.userData.previousMetrics.position.x = object.position.x;
+            object.userData.previousMetrics.position.y = object.position.y;
+            object.userData.previousMetrics.position.z = object.position.z;
             if (wasAbleToLock){
                 flyControls.canLockOn = true;
             }

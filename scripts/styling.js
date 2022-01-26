@@ -277,7 +277,7 @@ function clearLog(){
     }
 }
 
-document.getElementById("print-log").onclick = printToLog;
+document.getElementById("print-log").onclick = printToLog.bind(this, 'Print button pressed');
 document.getElementById("clear-log").onclick = clearLog;
 document.getElementById("download-long-json").onclick = downloadLongLogJson;
 document.getElementById("download-current-json").onclick = downloadCurrentLogJson;
