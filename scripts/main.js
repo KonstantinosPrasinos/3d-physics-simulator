@@ -1424,7 +1424,7 @@ let simulation = {
             world.addBody(tempBody);
 
             let geometry = new THREE.BoxGeometry(width, height, depth);
-            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000});
             let tempMesh = new THREE.Mesh(geometry, material);
             tempMesh.userData.createsGravity = true;
             tempMesh.userData.selectable = true;
@@ -1467,7 +1467,7 @@ let simulation = {
             world.addBody(tempBody);
 
             let geometry = new THREE.SphereGeometry(radius, Math.ceil(radius / 10) * 16, Math.ceil(radius / 10) * 8);
-            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let material = new THREE.MeshBasicMaterial({ color: 0x00ff00});
             let tempMesh = new THREE.Mesh(geometry, material);
             tempMesh.userData.createsGravity = true;
             tempMesh.userData.selectable = true;
@@ -1517,7 +1517,7 @@ let simulation = {
             world.addBody(tempBody);
 
             let geometry = new THREE.CylinderGeometry(radius, radius, height, Math.ceil(radius / 10) * 16);
-            let material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+            let material = new THREE.MeshBasicMaterial({ color: 0x0000ff});
             let tempMesh = new THREE.Mesh(geometry, material);
             tempMesh.userData.createsGravity = true;
             tempMesh.userData.selectable = true;

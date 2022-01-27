@@ -1040,9 +1040,6 @@ input {
 .event-input-text:hover {
     cursor: pointer;
 }
-.dropdown-option {
-    width: 50px;
-}
 .dropdown-option:hover {
     cursor: pointer;
 }
