@@ -884,6 +884,9 @@ xPos.addEventListener("blur", () => {
         xPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (xPos.value = '-0'){
+            xPos.value = '0';
+        }
         simulation.objects[simulation.itemSelected].mesh.position.x = parseFloat(xPos.value);
         synchronizePositions();
     }
@@ -894,6 +897,9 @@ yPos.addEventListener("blur", () => {
         yPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (yPos.value = '-0'){
+            yPos.value = '0';
+        }
         simulation.objects[simulation.itemSelected].mesh.position.y = parseFloat(yPos.value);
         synchronizePositions();
     }
@@ -904,6 +910,9 @@ zPos.addEventListener("blur", () => {
         zPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (zPos.value = '-0'){
+            zPos.value = '0';
+        }
         simulation.objects[simulation.itemSelected].mesh.position.z = parseFloat(zPos.value);
         synchronizePositions();
     }
@@ -920,6 +929,9 @@ xVel.addEventListener("blur", () => {
         xVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (xVel.value = '-0'){
+            xVel.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
     }
 });
@@ -929,6 +941,9 @@ yVel.addEventListener("blur", () => {
         yVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (yVel.value = '-0'){
+            yVel.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.velocity.y = parseFloat(yVel.value);
     }
 });
@@ -938,6 +953,9 @@ zVel.addEventListener("blur", () => {
         zVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (zVel.value = '-0'){
+            zVel.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.velocity.z = parseFloat(zVel.value);
     }
 });
@@ -953,6 +971,9 @@ xRot.addEventListener("blur", () => {
         xRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (xRot.value = '-0'){
+            xRot.value = '0';
+        }
         simulation.objects[simulation.itemSelected].mesh.rotation.x = parseFloat(xRot.value);
         synchronizeRotation();
     }
@@ -963,6 +984,9 @@ yRot.addEventListener("blur", () => {
         yRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (yRot.value = '-0'){
+            yRot.value = '0';
+        }
         simulation.objects[simulation.itemSelected].mesh.rotation.y = parseFloat(yRot.value);
         synchronizeRotation();
     }
@@ -973,6 +997,9 @@ zRot.addEventListener("blur", () => {
         zRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (zRot.value = '-0'){
+            zRot.value = '0';
+        }
         simulation.objects[simulation.itemSelected].mesh.rotation.z = parseFloat(zRot.value);
         synchronizeRotation();
     }
@@ -989,6 +1016,9 @@ xAng.addEventListener("blur", () => {
         xAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (xAng.value = '-0'){
+            xAng.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
     }
 });
@@ -998,6 +1028,9 @@ yAng.addEventListener("blur", () => {
         yAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (yAng.value = '-0'){
+            yAng.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
     }
 });
@@ -1007,6 +1040,9 @@ zAng.addEventListener("blur", () => {
         zAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (zAng.value = '-0'){
+            zAng.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
     }
 });
@@ -1022,6 +1058,9 @@ xFor.addEventListener("blur", () => {
         xFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (xFor.value = '-0'){
+            xFor.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.force.x = parseFloat(xFor.value);
     }
 });
@@ -1031,6 +1070,9 @@ yFor.addEventListener("blur", () => {
         yFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (yFor.value = '-0'){
+            yFor.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.force.y = parseFloat(yFor.value);
     }
 });
@@ -1040,6 +1082,9 @@ zFor.addEventListener("blur", () => {
         zFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (zFor.value = '-0'){
+            zFor.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.force.z = parseFloat(zFor.value);
     }
 });
@@ -1051,6 +1096,9 @@ massInput.addEventListener("blur", () => {
         massInput.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
+        if (massInput.value = '-0'){
+            massInput.value = '0';
+        }
         simulation.objects[simulation.itemSelected].body.mass = parseFloat(massInput.value);
         simulation.objects[simulation.itemSelected].body.updateMassProperties();
     }
