@@ -1472,6 +1472,8 @@ let simulation = {
             tempMesh.userData.createsGravity = true;
             tempMesh.userData.selectable = true;
             tempMesh.userData.hasVectors = false;
+            tempMesh.userData.collidedWith = [];
+            tempMesh.userData.previousMetrics = new PreviousMetrics(x == 'none' ? 0 : x, y, z);
             scene.add(tempMesh);
 
             tempMesh.name = generateName('Sphere');
@@ -1491,6 +1493,9 @@ let simulation = {
                 tempBody.position.set(x, y, z);
                 tempMesh.position.set(x, y, z);
             }
+            tempBody.addEventListener('collide', function(e) {
+                tempMesh.userData.collidedWith.push(e.body.id);
+            });
         }
     },
     createCylinder(x, y, z, radius, height) {
@@ -1518,6 +1523,8 @@ let simulation = {
             tempMesh.userData.selectable = true;
             tempMesh.userData.hasVectors = false;
             tempMesh.userData.previousScale = { x: 1, z: 1 };
+            tempMesh.userData.collidedWith = [];
+            tempMesh.userData.previousMetrics = new PreviousMetrics(x == 'none' ? 0 : x, y, z);
             scene.add(tempMesh);
 
             tempMesh.name = generateName('Cylinder');
@@ -1537,6 +1544,9 @@ let simulation = {
                 tempBody.position.set(x, y, z);
                 tempMesh.position.set(x, y, z);
             }
+            tempBody.addEventListener('collide', function(e) {
+                tempMesh.userData.collidedWith.push(e.body.id);
+            });
         }
     },
     placeObject(object){

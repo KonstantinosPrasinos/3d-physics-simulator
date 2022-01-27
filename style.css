@@ -1053,7 +1053,7 @@ input {
 }
 
 .disabled-button {
-    filter: brightness(85%);
+    filter: brightness(75%);
     cursor: not-allowed;
 }
 .disabled-button:active {
