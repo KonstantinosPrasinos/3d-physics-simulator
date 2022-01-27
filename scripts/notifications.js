@@ -50,5 +50,6 @@ export let notificationList = {
     tutLog: new Notification("Tutorial", "Here you can print the data of all objects in the scene either manually, using the print button, or every number of timesteps, using the respective input. You can also clear the log with the clear button."),
     tutDownloads: new Notification("Tutorial", "Using these buttons you can download the log either in a txt format or in a json format. You can either download the entire log, or only the current timestamp."),
     copyEmail: new Notification("Copied to Clipboard", "konstantinos.prasinos@gmail.com"),
-    simulationRunning: new Notification("Warning", "you cannot do this while the simulation is running.")
+    simulationRunning: new Notification("Warning", "you cannot do this while the simulation is running."),
+    actionObjectDeleted: new Notification("Warning", "you deleted an object that was used in an action, so the action has been deleted as well.")
 }

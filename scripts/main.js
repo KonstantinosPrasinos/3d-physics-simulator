@@ -5,14 +5,16 @@ import { TransformControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/
 import Stats from 'https://unpkg.com/three@0.126.1/examples/jsm/libs/stats.module.js';
 
 import {FlyControls} from './controls.js';
+import {notificationList} from './notifications.js';
 
 let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 let togglePauseButton = document.getElementById("top-play");
 
-let flyControls, savedobjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
+let flyControls, savedObjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 let actionList = [];
+const uuidMap = new Map();
 
 function changeTimeStep(temp) {
     timeStep = temp;
@@ -324,11 +326,9 @@ function handleActionOutput(selection, actionType, param1, param2, param3){
             handleActionPrint(actionType, param1, param2, param3);
             break;
         case 'pause':
-            console.log('paused');
             pauseSimulation();
             break;
         case 'both':
-            console.log('test');
             handleActionOutput(actionType, param1, param2, param3);
             pauseSimulation();
             break;
@@ -464,13 +464,280 @@ function toggleStats(bool) {
     statsOn = bool;
 }
 
+class Event {
+    static eventsCreated = 0;
+    constructor() {
+        this.selection1;
+        this.selection2;
+        this.selection3;
+        this.selection4;
+        this.id = Event.eventsCreated;
+        this.event1 = [];
+        this.event2 = [];
+        this.event3 = [];
+        this.event4 = [];
+        this.deleteButtonEvent;
+        Event.eventsCreated++;
+    }
+}
 
-function rewindobjects() {
+function deleteEventListeners(event, startN, deleteSelectionsBool){
+    for (let i = startN; i < 4; i++) {
+        for (let j in event[`event${i}`]){
+            document.removeEventListener('click', event[`event${i}`][j])
+        }
+        event[`event${i}`].length = 0;
+        if (deleteSelectionsBool){
+            event[`selection${i}`] = null;
+        }
+    }
+}
+
+function deleteLaterSelections(parent, n, id){
+    //Remember to remove their eventListeners as well.
+    for (let i = 0; i < parent.children.length; i++) { 
+        if (parent.children[i].nodeName == 'DIV'){
+            for (let j = n+1; j < 6; j++) {
+                if (parent.children[i].id == `event-field-${id}-${j}`){
+                    parent.removeChild(parent.children[i]);
+                    i--;
+                }
+            }
+        }
+    }
+
+    const event = actionList.find(element => element.id == id);
+    deleteEventListeners(event, n+1, true);
+}
+
+function createSelections(type, selections, event, parent, fieldN, textLeft, textRight) {
+    let field = document.createElement('div');
+    let selection, container, node1, node2, parameters, inputText;
+    field.classList.add(`event-field`);
+    field.setAttribute('id', `event-field-${event.id}-${fieldN}`);
+    field.innerHTML += textLeft;
+
+    switch (type){
+        case 'dropdown':
+            selection = document.createElement('div');
+            selection.classList.add('dropdown-selector');
+            container = document.createElement('div');
+            container.classList.add('dropdown-container');
+            inputText = document.createElement('span');
+            
+            switch (selections) {
+                case 'target':
+                    container.classList.add('target-dropdown');
+                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
+                    inputText.classList.add('event-input-text');
+                    inputText.innerHTML = 'target';
+                    selection.appendChild(inputText);
+                    node1 = document.createElement('div');
+                    node1.classList.add('dropdown-option');
+
+                    if (fieldN == 1){
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-time`);
+                        container.appendChild(node1);
+                        node1.textContent = 'time';
+                        let selectionTargetTime = function (e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-time`) {
+                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = 'time';
+                                event[`selection${fieldN}`] = 'time';
+                                deleteLaterSelections(parent, fieldN, event.id);
+                                createSelections('text', 'seconds', event, parent, fieldN+1, ' is ', ' s');
+                            }
+                        }
+                        event[`event${fieldN}`].push(selectionTargetTime);
+                        document.addEventListener('click', selectionTargetTime);
+                    } else {
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-anything`);
+                        container.appendChild(node1);
+                        node1.textContent = 'anything';
+                        let selectionTargetAnything = function(e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-anything`){
+                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = 'anything';
+                                event[`selection${fieldN}`] = 'anything';
+                                deleteLaterSelections(parent, fieldN, event.id);
+                                createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '');
+                            }
+                        }
+
+                        event[`event${fieldN}`].push(selectionTargetAnything);
+
+                        document.addEventListener('click', selectionTargetAnything);
+                    }
+
+                    addObjectsToDropdown(`${event.id}-${fieldN}`, container)
+                    break;
+                case 'parameters':
+                    parameters = ['collides', 'position x', 'position y', 'position z', 'rotation x', 'rotation y', 'rotation z', 'velocity x', 'velocity y', 'velocity z', 'angularVelocity x', 'angularVelocity y', 'angularVelocity z'];
+                    
+                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
+                    inputText.classList.add('event-input-text');
+                    inputText.innerHTML = 'parameter';
+                    selection.appendChild(inputText);
+                    
+                    parameters.forEach(parameter => {
+                        node1 = document.createElement('div');
+                        node1.innerText = parameter;
+                        node1.classList.add('dropdown-option');
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-${parameter.replace(' ', '.')}`);
+
+                        let selectionParameters = function (e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter.replace(' ', '.')}`){
+                                if (parameter == 'collides'){
+                                    document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
+                                    deleteLaterSelections(parent, fieldN, event.id);
+                                    createSelections('dropdown', 'target', event, parent, fieldN+1, ' with ', '');
+                                } else {
+                                    document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = `'s ${parameter}`;
+                                    deleteLaterSelections(parent, fieldN, event.id);
+                                    createSelections('text', 'm/s', event, parent, fieldN+1, '=', '');
+                                }
+                                event[`selection${fieldN}`] = parameter.replace(' ', '.');
+                            }
+                        }
+                        event[`event${fieldN}`].push(selectionParameters);
+
+                        document.addEventListener('click', selectionParameters);
+                        container.appendChild(node1);
+                    })
+
+                    break;
+                case 'eventType':
+                    parameters = ['print', 'pause', 'both'];
+
+                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
+                    inputText.classList.add('event-input-text');
+                    inputText.innerHTML = 'action';
+                    selection.appendChild(inputText);
+                    
+                    parameters.forEach(parameter => {
+                        node1 = document.createElement('div');
+                        node1.classList.add('dropdown-option');
+                        node1.innerText = parameter;
+                        node1.setAttribute('id', `target-${event.id}-${fieldN}-${parameter}`);
+
+                        let selectionEventType = function(e) {
+                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter}`){
+                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
+                                event[`selection${fieldN}`] = parameter;
+                            }
+                        }
+
+                        event[`event${fieldN}`].push(selectionEventType);
+
+                        document.addEventListener('click', selectionEventType);
+                        container.appendChild(node1);
+                    });
+                    break;
+            }
+            selection.appendChild(container);
+            field.appendChild(selection);
+            break;
+        case 'text':
+            selection = document.createElement('input');
+            selection.type = 'text';
+            selection.placeholder = 0;
+            selection.classList.add('text-editable');
+            selection.setAttribute('id', `input-${event.id}-${fieldN}`)
+
+            let selectionText = function (e) {
+                if (e.target && e.target.id == `input-${event.id}-${fieldN}`){
+                    document.getElementById(`input-${event.id}-${fieldN}`).addEventListener('blur', function (e) {
+                        if (parseInt(e.target.value).length == 0) {
+                            event[`selection${fieldN}`] = 0;
+                        } else {
+                            event[`selection${fieldN}`] = parseInt(e.target.value);
+                            deleteLaterSelections(parent, fieldN, event.id);
+                            createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '');
+                        }
+                    })
+                }
+            }
+            
+            event[`event${fieldN}`].push(selectionText);
+
+            document.addEventListener('click', selectionText);
+            field.appendChild(selection);
+            break;
+    }
+    field.innerHTML += textRight;
+    parent.appendChild(field);
+}
+
+function addObjectsToDropdown(serial, parent){
+    let node2;
+    const event = actionList.find(element => element.id == serial.slice(0, serial.indexOf('-')));
+    let fieldN = parseInt(serial.slice(serial.indexOf('-')+1, serial.length));
+    simulation.objects.forEach(object => {
+        if (fieldN == 1 || event.selection1 != object.mesh.uuid){
+            node2 = document.createElement('div');
+            node2.innerText = object.mesh.name;
+            node2.classList.add('dropdown-option');
+            node2.classList.add('dropdown-option-target-object');
+            node2.setAttribute('id', `target-${serial}-${object.mesh.uuid}`);
+
+            let selectionTargetObject = function(e) {
+                if (e.target && e.target.id == `target-${serial}-${object.mesh.uuid}`){
+                    document.getElementById(`input-${serial}`).innerHTML = object.mesh.name;
+                    event[`selection${fieldN}`] = object.mesh.uuid;
+                    deleteLaterSelections(parent, fieldN, event.id);
+                    if (fieldN == 1){
+                        createSelections('dropdown', 'parameters', event, document.getElementById(`event-node-${event.id}`), fieldN+1, '', '');
+                    } else {
+                        createSelections('dropdown', 'eventType', event, document.getElementById(`event-node-${event.id}`), fieldN+1, ' then ', '');
+                    }
+                }
+            }
+
+            event[`event${fieldN}`].push(selectionTargetObject);
+
+            document.addEventListener('click', selectionTargetObject);
+
+            parent.appendChild(node2);
+        }
+    });
+}
+
+function reAssignUuids(){
+    for (let action of actionList){
+        for (let i in action){
+            if (uuidMap.has(action[i])){
+                action[i] = uuidMap.get(action[i]);
+            }
+        }
+    }
+}
+
+function updateObjectsInActions(source, uuid){
+    if (actionList.length){
+        let containers = document.getElementsByClassName('target-dropdown');
+        for (let i in containers) {
+            if (containers[i].tagName) {
+                let serial = containers[i].childNodes[0].id;
+                while (containers[i].childNodes.length > 1) {
+                    containers[i].removeChild(containers[i].lastChild);
+                }
+                let temp = serial.slice(serial.indexOf('-') + 1, serial.lastIndexOf('-'));
+                deleteEventListeners(actionList.find(element => element.id == temp.slice(0, temp.indexOf('-'))), 1, false);
+                addObjectsToDropdown(serial.slice(serial.indexOf('-') + 1, serial.lastIndexOf('-')), containers[i]);
+
+            }
+        } 
+    }
+}
+
+
+
+function rewindObjects() {
     simulation.removeAllObjects();
-    simulation.objects = savedobjects;
-    savedobjects = [];
+    simulation.objects = savedObjects;
+    savedObjects = [];
     simulation.addAllObjects();
     refreshListOfObjects();
+    updateObjectsInActions();
+    reAssignUuids();
 }
 
 function generateJSON() {
@@ -529,6 +796,7 @@ function printToLog(reason) {
 }
 
 function addItemToList(index) {
+    updateObjectsInActions();
     let node = document.createElement("DIV");
     let selectButtonNode = document.createElement('input');
     let textNode = document.createElement("input");
@@ -646,11 +914,90 @@ function deleteObjectFromList(index) {
     if (transformControls.object && transformControls.object.uuid == simulation.objects[index].mesh.uuid) {
         switchControls('orbit')
     }
+    let uuid = simulation.objects[index].mesh.uuid;
+    if (actionList.length && uuid) {
+        for (let i in actionList) {
+            for (let j in actionList[i]) {
+                if (actionList[i][j] == uuid) {
+                    deleteEventListeners(actionList[i], 1, true);
+                    document.getElementById('events-container').removeChild(document.getElementById(`event-node-${actionList[i].id}`));
+                    actionList.splice(i, 1);
+                    createNotification(notificationList.actionObjectDeleted, false);
+                    break;
+                }
+            }
+        }
+    }
     scene.remove(simulation.objects[index].mesh);
     world.remove(simulation.objects[index].body);
     simulation.objects.splice(index, 1);
     refreshListOfObjects();
 }
+
+let tempTimeout, tempGSAP = gsap.timeline();
+let notifications = [];
+
+function closeNotification(){
+    let notificationPopup = document.getElementById("notification-popup");
+    clearTimeout(tempTimeout);
+    function hideNotification(){
+        notificationPopup.style.visibility = "hidden";
+        notifications.shift();
+        if (notifications.length > 0) {
+            let temp = showNotifications;
+            showNotifications = true;
+            createNotification(notifications[0], false);
+            showNotifications = temp;
+        }
+    }
+    tempGSAP.to(notificationPopup, {duration: 0.2, opacity: 0, onComplete: hideNotification});
+}
+
+function createNotification(notification, bool){
+    if (localStorage.getItem("showNotifications")) {
+        if (notifications.length < 1 || notification.type.concat(": ", notification.msg) != document.getElementById("notification-popup-text").innerHTML) {
+            if (bool || notifications.length == 0) {
+                notifications.push(notification);
+            }
+            let notificationPopup = document.getElementById("notification-popup");
+            if (window.getComputedStyle(notificationPopup).visibility == "hidden") {
+                switch (notifications[0].type) {
+                    case "Error":
+                        notificationPopup.style.borderColor = "#ff0000";
+                        break;
+                    case "Warning":
+                        notificationPopup.style.borderColor = "#fd7014";
+                        break;
+                    case "Tutorial":
+                        notificationPopup.style.borderColor = "#3498db";
+                        if (!doTutorial){
+                            return;
+                        }
+                        break;
+                    default:
+                        notificationPopup.style.borderColor = "var(--secondary-color)"
+                        break;
+                }
+                document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
+                notificationPopup.style.visibility = "visible";
+                tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
+                tempTimeout = setTimeout(closeNotification, 3000);
+            }
+        }
+    }
+}
+
+function handleMouseEnter(){
+    clearTimeout(tempTimeout);
+}
+
+function handleMouseLeave(){
+    tempTimeout = setTimeout(closeNotification, 3000);
+}
+
+document.getElementById("close-notification-popup").onclick = closeNotification;
+document.getElementById("notification-popup").onmouseenter = handleMouseEnter;
+document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
 
 function refreshListOfObjects() {
     while (document.getElementById("right-ui-item-container").firstChild) {
@@ -1012,12 +1359,15 @@ async function copyobjects() {
         //Deep copy of the threejs mesh
         copyMesh = simulation.objects[i].mesh.clone();
 
+        //Mapping the old to the new uuid
+        uuidMap.set(simulation.objects[i].mesh.uuid, copyMesh.uuid)
+
         //Assigning all of the above to an object ... object and adding it to the copied objects array
         let box = {
             body: copyBody,
             mesh: copyMesh
         }
-        savedobjects.push(box);
+        savedObjects.push(box);
     }
 
 }
@@ -1298,4 +1648,4 @@ initControls();
 
 animate();
 
-export { simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindobjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, pauseSimulation, resumeSimulation};
+export { Event, closeNotification, createNotification, createSelections, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, pauseSimulation, resumeSimulation, addObjectsToDropdown};
