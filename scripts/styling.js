@@ -1495,42 +1495,42 @@ document.getElementById('gravity-z-editable').addEventListener('blur', (event) =
     }
 });
 
-function addDeleteEventButton(parent, event){
+function addDeleteActionButton(parent, action){
     let button = document.createElement('input');
     button.type = 'button';
     button.classList.add('icon-buttons');
     button.classList.add('small-icon-buttons');
     button.classList.add('item-list-field-delete-button');
-    button.classList.add('event-delete-button');
-    button.setAttribute('id', `delete-button-${event.id}`);
+    button.classList.add('action-delete-button');
+    button.setAttribute('id', `delete-button-${action.id}`);
     parent.appendChild(button);
 
-    let deleteEvent = function(e) {
-        if (e.target && e.target.id == `delete-button-${event.id}`){
-            deleteEventListeners(event, 1);
-            document.getElementById('events-container').removeChild(parent);
-            document.removeEventListener('click', event.deleteButtonEvent);
-            actionList.splice(actionList.indexOf(event), 1);
+    let deleteAction = function(e) {
+        if (e.target && e.target.id == `delete-button-${action.id}`){
+            deleteEventListeners(action, 1);
+            document.getElementById('actions-container').removeChild(parent);
+            document.removeEventListener('click', action.deleteButtonAction);
+            actionList.splice(actionList.indexOf(action), 1);
         }
     }
 
-    event.deleteButtonEvent = deleteEvent;
+    action.deleteButtonAction = deleteAction;
 
-    document.addEventListener('click', deleteEvent);
+    document.addEventListener('click', deleteAction);
 }
 
-function createEventField(){
-    let event = new Event();
-    actionList.push(event);
+function createActionField(){
+    let action = new Action();
+    actionList.push(action);
 
     let node = document.createElement('div');
-    node.classList.add('event-node');
-    node.setAttribute('id', `event-node-${event.id}`);
-    addDeleteEventButton(node, event);
+    node.classList.add('action-node');
+    node.setAttribute('id', `action-node-${action.id}`);
+    addDeleteActionButton(node, action);
     node.innerHTML += 'When';
 
-    createSelections('dropdown', 'target', event, node, 1, '', '');
-    document.getElementById('events-container').appendChild(node);
+    createSelections('dropdown', 'target', action, node, 1, '', '');
+    document.getElementById('actions-container').appendChild(node);
 }
 
-document.getElementById('add-event').onclick = createEventField;
+document.getElementById('add-action').onclick = createActionField;

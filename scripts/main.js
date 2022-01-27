@@ -464,41 +464,41 @@ function toggleStats(bool) {
     statsOn = bool;
 }
 
-class Event {
-    static eventsCreated = 0;
+class Action {
+    static eventsAction = 0;
     constructor() {
         this.selection1;
         this.selection2;
         this.selection3;
         this.selection4;
-        this.id = Event.eventsCreated;
+        this.id = Action.eventsCreated;
         this.event1 = [];
         this.event2 = [];
         this.event3 = [];
         this.event4 = [];
-        this.deleteButtonEvent;
-        Event.eventsCreated++;
+        this.deleteButtonAction;
+        Action.actionsCreated++;
     }
 }
 
-function deleteEventListeners(event, startN, deleteSelectionsBool){
+function deleteEventListeners(action, startN, deleteSelectionsBool){
     for (let i = startN; i < 4; i++) {
-        for (let j in event[`event${i}`]){
-            document.removeEventListener('click', event[`event${i}`][j])
+        for (let j in action[`action${i}`]){
+            document.removeEventListener('click', action[`action${i}`][j])
         }
-        event[`event${i}`].length = 0;
+        action[`action${i}`].length = 0;
         if (deleteSelectionsBool){
-            event[`selection${i}`] = null;
+            action[`selection${i}`] = null;
         }
     }
 }
 
 function deleteLaterSelections(parent, n, id){
-    //Remember to remove their eventListeners as well.
+    //Remember to remove their actionListeners as well.
     for (let i = 0; i < parent.children.length; i++) { 
         if (parent.children[i].nodeName == 'DIV'){
             for (let j = n+1; j < 6; j++) {
-                if (parent.children[i].id == `event-field-${id}-${j}`){
+                if (parent.children[i].id == `action-field-${id}-${j}`){
                     parent.removeChild(parent.children[i]);
                     i--;
                 }
@@ -506,15 +506,15 @@ function deleteLaterSelections(parent, n, id){
         }
     }
 
-    const event = actionList.find(element => element.id == id);
-    deleteEventListeners(event, n+1, true);
+    const action = actionList.find(element => element.id == id);
+    deleteEventListeners(action, n+1, true);
 }
 
-function createSelections(type, selections, event, parent, fieldN, textLeft, textRight) {
+function createSelections(type, selections, action, parent, fieldN, textLeft, textRight) {
     let field = document.createElement('div');
     let selection, container, node1, node2, parameters, inputText;
-    field.classList.add(`event-field`);
-    field.setAttribute('id', `event-field-${event.id}-${fieldN}`);
+    field.classList.add(`action-field`);
+    field.setAttribute('id', `action-field-${action.id}-${fieldN}`);
     field.innerHTML += textLeft;
 
     switch (type){
@@ -528,52 +528,52 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
             switch (selections) {
                 case 'target':
                     container.classList.add('target-dropdown');
-                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
-                    inputText.classList.add('event-input-text');
+                    inputText.setAttribute('id', `input-${action.id}-${fieldN}`);
+                    inputText.classList.add('action-input-text');
                     inputText.innerHTML = 'target';
                     selection.appendChild(inputText);
                     node1 = document.createElement('div');
                     node1.classList.add('dropdown-option');
 
                     if (fieldN == 1){
-                        node1.setAttribute('id', `target-${event.id}-${fieldN}-time`);
+                        node1.setAttribute('id', `target-${action.id}-${fieldN}-time`);
                         container.appendChild(node1);
                         node1.textContent = 'time';
                         let selectionTargetTime = function (e) {
-                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-time`) {
-                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = 'time';
-                                event[`selection${fieldN}`] = 'time';
-                                deleteLaterSelections(parent, fieldN, event.id);
-                                createSelections('text', 'seconds', event, parent, fieldN+1, ' is ', ' s');
+                            if (e.target && e.target.id == `target-${action.id}-${fieldN}-time`) {
+                                document.getElementById(`input-${action.id}-${fieldN}`).innerHTML = 'time';
+                                action[`selection${fieldN}`] = 'time';
+                                deleteLaterSelections(parent, fieldN, action.id);
+                                createSelections('text', 'seconds', action, parent, fieldN+1, ' is ', ' s');
                             }
                         }
-                        event[`event${fieldN}`].push(selectionTargetTime);
+                        action[`action${fieldN}`].push(selectionTargetTime);
                         document.addEventListener('click', selectionTargetTime);
                     } else {
-                        node1.setAttribute('id', `target-${event.id}-${fieldN}-anything`);
+                        node1.setAttribute('id', `target-${action.id}-${fieldN}-anything`);
                         container.appendChild(node1);
                         node1.textContent = 'anything';
                         let selectionTargetAnything = function(e) {
-                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-anything`){
-                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = 'anything';
-                                event[`selection${fieldN}`] = 'anything';
-                                deleteLaterSelections(parent, fieldN, event.id);
-                                createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '');
+                            if (e.target && e.target.id == `target-${action.id}-${fieldN}-anything`){
+                                document.getElementById(`input-${action.id}-${fieldN}`).innerHTML = 'anything';
+                                action[`selection${fieldN}`] = 'anything';
+                                deleteLaterSelections(parent, fieldN, action.id);
+                                createSelections('dropdown', 'actionType', action, parent, fieldN+1, ' then ', '');
                             }
                         }
 
-                        event[`event${fieldN}`].push(selectionTargetAnything);
+                        action[`action${fieldN}`].push(selectionTargetAnything);
 
                         document.addEventListener('click', selectionTargetAnything);
                     }
 
-                    addObjectsToDropdown(`${event.id}-${fieldN}`, container)
+                    addObjectsToDropdown(`${action.id}-${fieldN}`, container)
                     break;
                 case 'parameters':
                     parameters = ['collides', 'position x', 'position y', 'position z', 'rotation x', 'rotation y', 'rotation z', 'velocity x', 'velocity y', 'velocity z', 'angularVelocity x', 'angularVelocity y', 'angularVelocity z'];
                     
-                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
-                    inputText.classList.add('event-input-text');
+                    inputText.setAttribute('id', `input-${action.id}-${fieldN}`);
+                    inputText.classList.add('action-input-text');
                     inputText.innerHTML = 'parameter';
                     selection.appendChild(inputText);
                     
@@ -581,34 +581,34 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
                         node1 = document.createElement('div');
                         node1.innerText = parameter;
                         node1.classList.add('dropdown-option');
-                        node1.setAttribute('id', `target-${event.id}-${fieldN}-${parameter.replace(' ', '.')}`);
+                        node1.setAttribute('id', `target-${action.id}-${fieldN}-${parameter.replace(' ', '.')}`);
 
                         let selectionParameters = function (e) {
-                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter.replace(' ', '.')}`){
+                            if (e.target && e.target.id == `target-${action.id}-${fieldN}-${parameter.replace(' ', '.')}`){
                                 if (parameter == 'collides'){
-                                    document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
-                                    deleteLaterSelections(parent, fieldN, event.id);
-                                    createSelections('dropdown', 'target', event, parent, fieldN+1, ' with ', '');
+                                    document.getElementById(`input-${action.id}-${fieldN}`).innerHTML = parameter;
+                                    deleteLaterSelections(parent, fieldN, action.id);
+                                    createSelections('dropdown', 'target', action, parent, fieldN+1, ' with ', '');
                                 } else {
-                                    document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = `'s ${parameter}`;
-                                    deleteLaterSelections(parent, fieldN, event.id);
-                                    createSelections('text', 'm/s', event, parent, fieldN+1, '=', '');
+                                    document.getElementById(`input-${action.id}-${fieldN}`).innerHTML = `'s ${parameter}`;
+                                    deleteLaterSelections(parent, fieldN, action.id);
+                                    createSelections('text', 'm/s', action, parent, fieldN+1, '=', '');
                                 }
-                                event[`selection${fieldN}`] = parameter.replace(' ', '.');
+                                action[`selection${fieldN}`] = parameter.replace(' ', '.');
                             }
                         }
-                        event[`event${fieldN}`].push(selectionParameters);
+                        action[`action${fieldN}`].push(selectionParameters);
 
                         document.addEventListener('click', selectionParameters);
                         container.appendChild(node1);
                     })
 
                     break;
-                case 'eventType':
+                case 'actionType':
                     parameters = ['print', 'pause', 'both'];
 
-                    inputText.setAttribute('id', `input-${event.id}-${fieldN}`);
-                    inputText.classList.add('event-input-text');
+                    inputText.setAttribute('id', `input-${action.id}-${fieldN}`);
+                    inputText.classList.add('action-input-text');
                     inputText.innerHTML = 'action';
                     selection.appendChild(inputText);
                     
@@ -616,18 +616,18 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
                         node1 = document.createElement('div');
                         node1.classList.add('dropdown-option');
                         node1.innerText = parameter;
-                        node1.setAttribute('id', `target-${event.id}-${fieldN}-${parameter}`);
+                        node1.setAttribute('id', `target-${action.id}-${fieldN}-${parameter}`);
 
-                        let selectionEventType = function(e) {
-                            if (e.target && e.target.id == `target-${event.id}-${fieldN}-${parameter}`){
-                                document.getElementById(`input-${event.id}-${fieldN}`).innerHTML = parameter;
-                                event[`selection${fieldN}`] = parameter;
+                        let selectionActionType = function(e) {
+                            if (e.target && e.target.id == `target-${action.id}-${fieldN}-${parameter}`){
+                                document.getElementById(`input-${action.id}-${fieldN}`).innerHTML = parameter;
+                                action[`selection${fieldN}`] = parameter;
                             }
                         }
 
-                        event[`event${fieldN}`].push(selectionEventType);
+                        action[`action${fieldN}`].push(selectionActionType);
 
-                        document.addEventListener('click', selectionEventType);
+                        document.addEventListener('click', selectionActionType);
                         container.appendChild(node1);
                     });
                     break;
@@ -640,23 +640,23 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
             selection.type = 'text';
             selection.placeholder = 0;
             selection.classList.add('text-editable');
-            selection.setAttribute('id', `input-${event.id}-${fieldN}`)
+            selection.setAttribute('id', `input-${action.id}-${fieldN}`)
 
             let selectionText = function (e) {
-                if (e.target && e.target.id == `input-${event.id}-${fieldN}`){
-                    document.getElementById(`input-${event.id}-${fieldN}`).addEventListener('blur', function (e) {
+                if (e.target && e.target.id == `input-${action.id}-${fieldN}`){
+                    document.getElementById(`input-${action.id}-${fieldN}`).addEventListener('blur', function (e) {
                         if (parseInt(e.target.value).length == 0) {
-                            event[`selection${fieldN}`] = 0;
+                            action[`selection${fieldN}`] = 0;
                         } else {
-                            event[`selection${fieldN}`] = parseInt(e.target.value);
-                            deleteLaterSelections(parent, fieldN, event.id);
-                            createSelections('dropdown', 'eventType', event, parent, fieldN+1, ' then ', '');
+                            action[`selection${fieldN}`] = parseInt(e.target.value);
+                            deleteLaterSelections(parent, fieldN, action.id);
+                            createSelections('dropdown', 'actionType', action, parent, fieldN+1, ' then ', '');
                         }
                     })
                 }
             }
             
-            event[`event${fieldN}`].push(selectionText);
+            action[`action${fieldN}`].push(selectionText);
 
             document.addEventListener('click', selectionText);
             field.appendChild(selection);
@@ -668,10 +668,10 @@ function createSelections(type, selections, event, parent, fieldN, textLeft, tex
 
 function addObjectsToDropdown(serial, parent){
     let node2;
-    const event = actionList.find(element => element.id == serial.slice(0, serial.indexOf('-')));
+    const action = actionList.find(element => element.id == serial.slice(0, serial.indexOf('-')));
     let fieldN = parseInt(serial.slice(serial.indexOf('-')+1, serial.length));
     simulation.objects.forEach(object => {
-        if (fieldN == 1 || event.selection1 != object.mesh.uuid){
+        if (fieldN == 1 || action.selection1 != object.mesh.uuid){
             node2 = document.createElement('div');
             node2.innerText = object.mesh.name;
             node2.classList.add('dropdown-option');
@@ -681,17 +681,17 @@ function addObjectsToDropdown(serial, parent){
             let selectionTargetObject = function(e) {
                 if (e.target && e.target.id == `target-${serial}-${object.mesh.uuid}`){
                     document.getElementById(`input-${serial}`).innerHTML = object.mesh.name;
-                    event[`selection${fieldN}`] = object.mesh.uuid;
-                    deleteLaterSelections(parent, fieldN, event.id);
+                    action[`selection${fieldN}`] = object.mesh.uuid;
+                    deleteLaterSelections(parent, fieldN, action.id);
                     if (fieldN == 1){
-                        createSelections('dropdown', 'parameters', event, document.getElementById(`event-node-${event.id}`), fieldN+1, '', '');
+                        createSelections('dropdown', 'parameters', action, document.getElementById(`action-node-${action.id}`), fieldN+1, '', '');
                     } else {
-                        createSelections('dropdown', 'eventType', event, document.getElementById(`event-node-${event.id}`), fieldN+1, ' then ', '');
+                        createSelections('dropdown', 'actionType', action, document.getElementById(`action-node-${action.id}`), fieldN+1, ' then ', '');
                     }
                 }
             }
 
-            event[`event${fieldN}`].push(selectionTargetObject);
+            action[`action${fieldN}`].push(selectionTargetObject);
 
             document.addEventListener('click', selectionTargetObject);
 
