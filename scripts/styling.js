@@ -621,7 +621,7 @@ document.getElementById("custom-theme-button").onclick = toggleCustomTheme;
 document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
         simulation.isRunning = true;
-        document.getElementById("top-replay").classList.remove('disabled-button');
+        document.getElementById("top-reset").classList.remove('disabled-button');
         if (transformControls.enabled){
             switch (transformControls.mode) {
                 case 'translate':
@@ -654,7 +654,7 @@ document.getElementById("top-play").onclick = function togglePause(){
     }
 }
 
-document.getElementById("top-replay").onclick = async function toggleMode(){
+document.getElementById("top-reset").onclick = async function toggleMode(){
     if (mode == "simulation"){
         clearLog();
         pauseSimulation();
@@ -667,7 +667,7 @@ document.getElementById("top-replay").onclick = async function toggleMode(){
             updateValuesWhileRunning(true);
             switchControls('transform');
         }
-        document.getElementById("top-replay").classList.add('disabled-button');
+        document.getElementById("top-reset").classList.add('disabled-button');
     }
 }
 
@@ -1370,7 +1370,7 @@ function handleTutorialToggle(bool){
         document.getElementById("top-resize").onmouseenter = createNotification.bind(this, notificationList.tutScale, false);
         document.getElementById("top-rotate").onmouseenter = createNotification.bind(this, notificationList.tutRotate, false);
         document.getElementById("top-play").onmouseenter = createNotification.bind(this, notificationList.tutPlay, false);
-        document.getElementById("top-replay").onmouseenter = createNotification.bind(this, notificationList.tutReset, false);
+        document.getElementById("top-reset").onmouseenter = createNotification.bind(this, notificationList.tutReset, false);
         document.getElementById("right-ui").onmouseenter = createNotification.bind(this,  notificationList.tutRight, false);
         document.getElementById("item-color-picker").onmouseenter = createNotification.bind(this, notificationList.tutColor, false);
         document.getElementById("wireframe-toggle").onmouseenter = createNotification.bind(this, notificationList.tutWireframe, false);
@@ -1381,7 +1381,7 @@ function handleTutorialToggle(bool){
         document.getElementById("force-vectors-container").onmouseenter = createNotification(notificationList.tutVectors, false);
         document.getElementById("velocity-vectors-container").onmouseenter = createNotification(notificationList.tutVectors, false);
         document.getElementById("right-ui-items-list").onmouseenter = createNotification(notificationList.tutItems, false);
-        document.getElementById("top-replay").onmouseenter = createNotification.bind(this, notificationList.tutReset, false);
+        document.getElementById("top-reset").onmouseenter = createNotification.bind(this, notificationList.tutReset, false);
         document.getElementById("background-color-picker").onmouseenter = createNotification.bind(this, notificationList.tutBackground, false);
         document.getElementById("theme-container").onmouseenter = createNotification.bind(this, notificationList.tutTheme, false);
         document.getElementById("theme-container").onmouseenter = createNotification.bind(this, notificationList.tutTheme, false);
