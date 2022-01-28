@@ -26,7 +26,7 @@ export let notificationList = {
     tutTranslate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the position translate vectors. You can drag them to move the object. By clicking twice you can deselect the controls."),
     tutScale: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the scale vectors. You can drag them to change the scale of the object. By clicking twice you can deselect the controls."),
     tutRotate: new Notification("Tutorial", "By selecting this you can click on an object on the canvas to bring up the rotation vectors. You can drag them to change the rotation of the object. By clicking twice you can deselect the controls."),
-    tutPlay: new Notification("Tutorial", "With this you can start the simulation. If the simulation is running this will change into a pause button."),
+    tutPlay: new Notification("Tutorial", "With this you can start the simulation. If the simulation is running this will change into a pause button. Note: all distance and sizing is measured from the center of the body."),
     tutReset: new Notification("Tutorial", "With this you can reset the simulation to the previously saved Setup state."),
     tutRight: new Notification("Tutorial", "This opens the object ui. In this you can see and edit all the information regarding an object, as well as a list of all the objects. You need to select an object to see the tutorial for the object attributes."),
     tutColor: new Notification("Tutorial", "This changes the color of the selected object."),

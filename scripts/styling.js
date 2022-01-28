@@ -2,7 +2,7 @@ import {deleteEventListeners, closeNotification, createNotification, simulation,
 
 import {notificationList} from './notifications.js';
 
-let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, doTutorial = true, canClickCanvas = true, invalidClicksCanvas = 0;
+let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, canClickCanvas = true, invalidClicksCanvas = 0;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
@@ -152,12 +152,12 @@ function initStyling(){
 
     if (!localStorage.doTutorial) {
         localStorage.setItem("doTutorial", true);
-        handleTutorialToggle(doTutorial == 'true');
+        handleTutorialToggle(simulation.doTutorial == 'true');
     } else {
-        doTutorial = (localStorage.getItem("doTutorial") == 'true');
-        document.getElementById("tutorial-toggle").checked = doTutorial;
-        if (doTutorial) {
-            handleTutorialToggle(doTutorial);
+        simulation.doTutorial = (localStorage.getItem("doTutorial") == 'true');
+        document.getElementById("tutorial-toggle").checked = simulation.doTutorial;
+        if (simulation.doTutorial) {
+            handleTutorialToggle(simulation.doTutorial);
         }
     }
 
@@ -242,11 +242,6 @@ function downloadCurrentLogJson(){
         downloadJson(JSON.stringify(generateJSON()));
     }
 }
-
-function downloadSetupLogJson(){
-    
-}
-
 
 function downloadTxt(text){
     let log = "data:text;charset=utf-8," + encodeURI(text);
@@ -530,7 +525,7 @@ document.getElementById("collapse-right-ui-button").onclick = function toggleRig
             .to(rightItems, { duration: 0.2, opacity: 1 }, '-=0.2')
             .to(objectNameField, {duration: 0.2, opacity: 1}, '-=0.2');
         rightUIisCollapsed = !rightUIisCollapsed;
-        if (showNotifications && doTutorial){
+        if (showNotifications && simulation.doTutorial){
             createNotification(notificationList.tutRight, false);
         }
     } else {
@@ -598,7 +593,7 @@ function handleActionsUi(){
 document.getElementById('actions-button').onclick = document.getElementById('close-actions-handler').onclick = handleActionsUi;
 
 function handleSettingsOpen(){
-    if (showNotifications && doTutorial && window.getComputedStyle(document.getElementById("settings-box")).visibility == "hidden"){
+    if (showNotifications && simulation.doTutorial && window.getComputedStyle(document.getElementById("settings-box")).visibility == "hidden"){
         createNotification(notificationList.tutSettings, false);
     }
     toggleSettings();
@@ -645,7 +640,6 @@ document.getElementById("top-play").onclick = function togglePause(){
             element.body.quaternion.copy(element.mesh.quaternion);
         });
         setDisabledPhysical(true);
-        createNotification(notificationList.centerMeasure, false)
         // synchronizePositions();
     }
     if (simulation.isPaused){
@@ -1211,8 +1205,8 @@ document.getElementById("notification-toggle").addEventListener("click", (event)
     if (showNotifications == false){
         document.getElementById("tutorial-toggle").checked = false;
         localStorage.setItem("doTutorial", false);
-        doTutorial = false;
-        if (doTutorial){
+        simulation.doTutorial = false;
+        if (simulation.doTutorial){
             showNotifications = true;
             createNotification(notificationList.noNotifs, true);
             showNotifications = false;
@@ -1356,9 +1350,10 @@ async function fileToJSON(file) {
 
 function handleTutorialToggle(bool){
     localStorage.setItem("doTutorial", bool);
-    doTutorial = bool;
+    simulation.doTutorial = bool;
     if (bool && showNotifications){
         createNotification(notificationList.tutStart, true);
+        console.log(document.getElementById('left-ui').onmouseenter);
         document.getElementById("left-ui").onmouseenter = createNotification.bind(this, notificationList.tutLeft, false);
         document.getElementById("add-cube-button").onmouseenter = createNotification.bind(this, notificationList.tutBox, false);
         document.getElementById("add-sphere-button").onmouseenter = createNotification.bind(this, notificationList.tutSphere, false);
@@ -1386,7 +1381,7 @@ function handleTutorialToggle(bool){
         document.getElementById("camera-grid-container").onmouseenter = createNotification.bind(this, notificationList.tutCameras, false);
         document.getElementById("fov-grid-container").onmouseenter = createNotification.bind(this, notificationList.tutFov, false);
         document.getElementById("time-step-container").onmouseenter = createNotification.bind(this, notificationList.tutTime, false);
-        document.getElementById("grid-container").onmouseenter = createNotification.bind(this, notificationList.tutGrid, false);
+        document.getElementById("custom-grid-container").onmouseenter = createNotification.bind(this, notificationList.tutGrid, false);
         document.getElementById("fps-container").onmouseenter = createNotification.bind(this, notificationList.tutFps, false);
         document.getElementById("notifications-container").onmouseenter = createNotification.bind(this, notificationList.tutNotifs, false);
         document.getElementById("tutorial-container").onmouseenter = createNotification.bind(this, notificationList.tutCeption, false);
@@ -1398,8 +1393,7 @@ function handleTutorialToggle(bool){
         createNotification(notificationList.noNotifs, true);
         showNotifications = false;
         document.getElementById("tutorial-toggle").checked = false;
-        // localStorage.setItem("doTutorial", bool);
-        doTutorial = bool;
+        simulation.doTutorial = bool;
     }
 }
 

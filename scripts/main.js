@@ -957,7 +957,7 @@ function createNotification(notification, bool){
                         break;
                     case "Tutorial":
                         notificationPopup.style.borderColor = "#3498db";
-                        if (!doTutorial){
+                        if (!simulation.doTutorial){
                             return;
                         }
                         break;
@@ -1399,6 +1399,7 @@ let simulation = {
     isRunning: false,
     placingObject: false,
     objectPlaceDist: 50,
+    doTutorial: true,
     createBox(x, y, z, width, height, depth) {
         if (!this.placingObject) {
             let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
