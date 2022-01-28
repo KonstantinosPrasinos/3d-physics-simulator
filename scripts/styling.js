@@ -1508,6 +1508,7 @@ function addDeleteActionButton(parent, action){
     let deleteAction = function(e) {
         if (e.target && e.target.id == `delete-button-${action.id}`){
             deleteEventListeners(action, 1);
+            console.log(parent);
             document.getElementById('actions-container').removeChild(parent);
             document.removeEventListener('click', action.deleteButtonAction);
             actionList.splice(actionList.indexOf(action), 1);
@@ -1525,6 +1526,7 @@ function createActionField(){
 
     let node = document.createElement('div');
     node.classList.add('action-node');
+    console.log(action);
     node.setAttribute('id', `action-node-${action.id}`);
     addDeleteActionButton(node, action);
     node.innerHTML += 'When';

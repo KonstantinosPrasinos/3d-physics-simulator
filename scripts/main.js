@@ -465,13 +465,13 @@ function toggleStats(bool) {
 }
 
 class Action {
-    static eventsAction = 0;
+    static actionsCreated = 0;
     constructor() {
         this.selection1;
         this.selection2;
         this.selection3;
         this.selection4;
-        this.id = Action.eventsCreated;
+        this.id = Action.actionsCreated;
         this.event1 = [];
         this.event2 = [];
         this.event3 = [];
