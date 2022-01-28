@@ -11,10 +11,11 @@ let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 let togglePauseButton = document.getElementById("top-play");
 
-let flyControls, savedObjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
+let savedObjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 let actionList = [];
 const uuidMap = new Map();
+let nClicks = 0, doubleClick;
 
 function changeTimeStep(temp) {
     timeStep = temp;
@@ -24,14 +25,12 @@ function setCamera(cameraType) {
     
     if (camera.type != cameraType) {
         let transformControlsWereAttached = !(!transformControls.object);
-        // if (transformControlsWereAttached){
-        //     transformControls.detach()
-        // }
         switch (cameraType) {
             case "PerspectiveCamera":
-                flyControls.canLockOn = true;
                 camera = perspectiveCamera;
-                orbitControls.enabled = false;
+                orbitControls.object = camera;
+                orbitControls.reset();
+
                 transformControls.camera = camera;
                 transformControls.enabled = false;
                 
@@ -39,20 +38,19 @@ function setCamera(cameraType) {
                 camera.updateProjectionMatrix();
                 break;
             case "OrthographicCamera":
-                flyControls.canLockOn = false;
                 camera = orthographicCamera;
                 orbitControls.object = camera;
                 orbitControls.reset();
-                orbitControls.enabled = true;
+
+                transformControls.camera = camera;
+                transformControls.enabled = false;
+
                 camera.updateMatrixWorld();
                 camera.updateProjectionMatrix();
                 break;
             default:
                 break;
         }
-        // if (transformControlsWereAttached){
-        //     transformControls.attach(simulation.objects[simulation.itemSelected].mesh)
-        // }
         
     }
 }
@@ -60,20 +58,14 @@ function setCamera(cameraType) {
 function switchControls(controlsType) {
     if (controlsType == 'transform') {
         if (simulation.itemSelected > -1) {
-            flyControls.canLockOn = false;
-            if (camera.type != "PerspectiveCamera"){
-                orbitControls.enabled = false;
-            }
+            orbitControls.enabled = false;
             transformControls.enabled = true;
             transformControls.attach(simulation.objects[simulation.itemSelected].mesh);
         }
     } else {
-        flyControls.canLockOn = true;
         transformControls.detach();
         transformControls.enabled = false;
-        if (camera.type != "PerspectiveCamera"){
-            orbitControls.enabled = true;
-        }
+        orbitControls.enabled = true;
     }
 }
 
@@ -272,7 +264,6 @@ function updateValuesWhileRunning(bool) {
 function initControls() {
     orbitControls = new OrbitControls(camera, renderer.domElement);
     transformControls = new TransformControls(camera, renderer.domElement);
-    flyControls = new FlyControls(perspectiveCamera, renderer.domElement, scene, transformControls);
     transformControls.enabled = false;
     orbitControls.enabled = true;
     scene.add(transformControls);
@@ -440,10 +431,6 @@ function animate() {
 
     if (statsOn) {
         stats.update();
-    }
-
-    if (flyControls.pointerLock.isLocked){
-        flyControls.move();
     }
 
     for (let i in simulation.objects) {
@@ -1552,8 +1539,6 @@ let simulation = {
     placeObject(object){
         this.placingObject = true;
         let orbitControlsWereEnabled;
-        let wasAbleToLock = flyControls.canLockOn;
-        flyControls.canLockOn = false;
         function findPosition(event){
             let mouseVector = new THREE.Vector2();
             let rayCaster = new THREE.Raycaster();
@@ -1609,11 +1594,20 @@ let simulation = {
             object.userData.previousMetrics.position.x = object.position.x;
             object.userData.previousMetrics.position.y = object.position.y;
             object.userData.previousMetrics.position.z = object.position.z;
-            if (wasAbleToLock){
-                flyControls.canLockOn = true;
+        }
+
+        function handleClick(){
+            nClicks++;
+            if (nClicks > 1){
+                removeEventListeners();
+                nClicks = 0;
+                clearTimeout(doubleClick);
+                doubleClick = null;
+            } else {
+                doubleClick = setTimeout(() => {nClicks = 0}, 500);
             }
         }
-        canvas.addEventListener("click", removeEventListeners)
+        canvas.addEventListener("click", handleClick);
     },
     checkForObject(event) {
         let mouseVector = new THREE.Vector2();
@@ -1658,4 +1652,4 @@ initControls();
 
 animate();
 
-export { deleteEventListeners, Action, closeNotification, createNotification, createSelections, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, pauseSimulation, resumeSimulation, addObjectsToDropdown};
+export { deleteEventListeners, Action, closeNotification, createNotification, createSelections, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, world, actionList, pauseSimulation, resumeSimulation, addObjectsToDropdown};

@@ -1,4 +1,4 @@
-import {deleteEventListeners, closeNotification, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, resumeSimulation, pauseSimulation, createSelections, addObjectsToDropdown, Action} from './main.js';
+import {deleteEventListeners, closeNotification, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, addObjectsToDropdown, Action} from './main.js';
 
 import {notificationList} from './notifications.js';
 
@@ -645,6 +645,7 @@ document.getElementById("top-play").onclick = function togglePause(){
             element.body.quaternion.copy(element.mesh.quaternion);
         });
         setDisabledPhysical(true);
+        createNotification(notificationList.centerMeasure, false)
         // synchronizePositions();
     }
     if (simulation.isPaused){
@@ -792,9 +793,6 @@ function handleCanvasClick(event, bool){
                 invalidClicksCanvas = 0;
                 clearTimeout(doubleClick);
                 doubleClick = null;
-                if (camera.type == "PerspectiveCamera"){
-                    flyControls.canLockOn = true;
-                }
             } else {
                 doubleClick = setTimeout(() => {invalidClicksCanvas = 0}, 500);
             }
