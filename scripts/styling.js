@@ -1,8 +1,8 @@
-import {deleteEventListeners, closeNotification, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, addObjectsToDropdown, Action} from './main.js';
+import {deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action} from './main.js';
 
 import {notificationList} from './notifications.js';
 
-let mode = "setup", selectedCursor = "none", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, canClickCanvas = true, invalidClicksCanvas = 0;
+let mode = "setup", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, canClickCanvas = true, invalidClicksCanvas = 0;
 
 let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
