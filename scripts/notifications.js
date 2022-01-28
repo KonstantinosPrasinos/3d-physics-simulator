@@ -8,7 +8,7 @@ class Notification {
 export let notificationList = {
     inputEmpty: new Notification("Warning", "this field can't be empty."),
     inputNan: new Notification("Warning", "this field must be a number."),
-    itemLoading: new Notification("Note", "the items loaded will not have the same UUID. The fields needed to load an object are: position and dimensions."),
+    itemLoading: new Notification("Note", "the items loaded will not have the same UUID. Gravity will be loaded from the json as well (if provided). The fields needed to load an object are: position and dimensions. All the current objects in the canvas and actions will be deleted."),
     invalidFile: new Notification("Error", "the file you have selected is not a valid."),
     loadFileInfo: new Notification("Tutorial", "Only the contents of the fist timestamp are loaded from the file. Note: the items loaded will not have the same uuid as the ones in the file."),
     emptyFile: new Notification("Error", "the file you have inserted doesn't contain any valid objects."),

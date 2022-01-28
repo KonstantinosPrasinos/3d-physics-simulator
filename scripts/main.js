@@ -23,7 +23,6 @@ function changeTimeStep(temp) {
 function setCamera(cameraType) {
     
     if (camera.type != cameraType) {
-        let transformControlsWereAttached = !(!transformControls.object);
         switch (cameraType) {
             case "PerspectiveCamera":
                 camera = perspectiveCamera;
@@ -299,6 +298,14 @@ function initCannon() {
 }
 
 //Timed Functions
+
+function deleteAllActions(){
+    for (let i in actionList){
+        deleteEventListeners(actionList[i], 1);
+    }
+    document.getElementById('actions-container').innerHTML = '';
+    actionList.length = 0;
+}
 
 function handleActionPrint(actionType, param1, param2, param3){
     if (actionType == 'time'){
@@ -1652,4 +1659,4 @@ initControls();
 
 animate();
 
-export { deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action };
+export { deleteAllActions, deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action };

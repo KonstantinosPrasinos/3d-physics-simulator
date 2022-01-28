@@ -1,10 +1,9 @@
-import {deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action} from './main.js';
+import {deleteAllActions, deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action} from './main.js';
 
 import {notificationList} from './notifications.js';
 
 let mode = "setup", rightUIisCollapsed = true, storedTheme = 'dark', timeStepStr = '1/60', showNotifications = true, canClickCanvas = true, invalidClicksCanvas = 0;
 
-let topUI = document.getElementById("top-ui");
 let rightUI = document.getElementById("right-ui");
 let collapseRightUIButton = document.getElementById("collapse-right-ui-button");
 let rightFeatures = document.getElementById("right-ui-features");
@@ -12,17 +11,7 @@ let objectNameField = document.getElementById("object-name");
 let rightItems = document.getElementById("right-ui-items-list");
 let settingsOverlay = document.getElementById("settings-overlay");
 let settingsBox = document.getElementById("settings-box");
-let widthInput = document.getElementById("right-ui-width");
-let heightInput = document.getElementById("right-ui-height");
-let depthInput = document.getElementById("right-ui-depth");
-let xInput = document.getElementById("right-ui-x");
-let yInput = document.getElementById("right-ui-y");
-let zInput = document.getElementById("right-ui-z");
-let rotationXInput = document.getElementById("right-rotation-x");
-let rotationYInput = document.getElementById("right-rotation-y");
-let rotationZInput = document.getElementById("right-rotation-z");
 let colorPicker = document.getElementById("item-color-picker");
-let togglePauseButton = document.getElementById("top-play");
 let topMode = document.getElementById("top-mode");
 let canvas = document.getElementById("viewportCanvas");
 let fovSlider = document.getElementById("fov-slider");
@@ -1330,6 +1319,7 @@ document.getElementById("json-input").onchange = async function () {
         if (fileList[0].name.slice(fileList[0].name.length - 5, fileList[0].name.length) === '.json'){
             let fileJson = await fileToJSON(fileList[0]);
             loadfromJson(fileJson);
+            deleteAllActions();
         } else {
             createNotification(notificationList.invalidFileType, true);
         }
