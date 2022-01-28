@@ -486,7 +486,7 @@ function deleteEventListeners(action, startN, deleteSelectionsBool){
         for (let j in action[`action${i}`]){
             document.removeEventListener('click', action[`action${i}`][j])
         }
-        action[`action${i}`].length = 0;
+        action[`event${i}`].length = 0;
         if (deleteSelectionsBool){
             action[`selection${i}`] = null;
         }
@@ -547,7 +547,7 @@ function createSelections(type, selections, action, parent, fieldN, textLeft, te
                                 createSelections('text', 'seconds', action, parent, fieldN+1, ' is ', ' s');
                             }
                         }
-                        action[`action${fieldN}`].push(selectionTargetTime);
+                        action[`event${fieldN}`].push(selectionTargetTime);
                         document.addEventListener('click', selectionTargetTime);
                     } else {
                         node1.setAttribute('id', `target-${action.id}-${fieldN}-anything`);
@@ -562,7 +562,7 @@ function createSelections(type, selections, action, parent, fieldN, textLeft, te
                             }
                         }
 
-                        action[`action${fieldN}`].push(selectionTargetAnything);
+                        action[`event${fieldN}`].push(selectionTargetAnything);
 
                         document.addEventListener('click', selectionTargetAnything);
                     }
@@ -597,7 +597,7 @@ function createSelections(type, selections, action, parent, fieldN, textLeft, te
                                 action[`selection${fieldN}`] = parameter.replace(' ', '.');
                             }
                         }
-                        action[`action${fieldN}`].push(selectionParameters);
+                        action[`event${fieldN}`].push(selectionParameters);
 
                         document.addEventListener('click', selectionParameters);
                         container.appendChild(node1);
@@ -625,7 +625,7 @@ function createSelections(type, selections, action, parent, fieldN, textLeft, te
                             }
                         }
 
-                        action[`action${fieldN}`].push(selectionActionType);
+                        action[`event${fieldN}`].push(selectionActionType);
 
                         document.addEventListener('click', selectionActionType);
                         container.appendChild(node1);
@@ -656,7 +656,7 @@ function createSelections(type, selections, action, parent, fieldN, textLeft, te
                 }
             }
             
-            action[`action${fieldN}`].push(selectionText);
+            action[`event${fieldN}`].push(selectionText);
 
             document.addEventListener('click', selectionText);
             field.appendChild(selection);
@@ -691,7 +691,7 @@ function addObjectsToDropdown(serial, parent){
                 }
             }
 
-            action[`action${fieldN}`].push(selectionTargetObject);
+            action[`event${fieldN}`].push(selectionTargetObject);
 
             document.addEventListener('click', selectionTargetObject);
 
@@ -1658,4 +1658,4 @@ initControls();
 
 animate();
 
-export { deleteEventListeners, Event, closeNotification, createNotification, createSelections, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, pauseSimulation, resumeSimulation, addObjectsToDropdown};
+export { deleteEventListeners, Action, closeNotification, createNotification, createSelections, simulation, camera, transformControls, orbitControls, copyobjects, renderer, updateVectors, changeTimeStep, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, pauseSimulation, resumeSimulation, addObjectsToDropdown};

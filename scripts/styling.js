@@ -1,4 +1,4 @@
-import {deleteEventListeners, closeNotification, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, resumeSimulation, pauseSimulation, createSelections, addObjectsToDropdown, Event} from './main.js';
+import {deleteEventListeners, closeNotification, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, updateStaticValues, updateVarValues, setSizesForShape, toggleValues, updateValuesWhileRunning, flyControls, world, actionList, resumeSimulation, pauseSimulation, createSelections, addObjectsToDropdown, Action} from './main.js';
 
 import {notificationList} from './notifications.js';
 
@@ -28,7 +28,7 @@ let canvas = document.getElementById("viewportCanvas");
 let fovSlider = document.getElementById("fov-slider");
 let fovText = document.getElementById("fov-text");
 let libraryUi = document.getElementById("library-ui");
-let eventHandlerUi = document.getElementById("event-handler-ui");
+let actionHandlerUi = document.getElementById("action-handler-ui");
 
 //Local Storage Stuff
 
@@ -570,32 +570,32 @@ function handleLibrary() {
 
 document.getElementById('library-button').onclick = document.getElementById('close-library').onclick = handleLibrary;
 
-let eventHandlerContainer = document.getElementById('event-handler-container');
+let actionHandlerContainer = document.getElementById('action-handler-container');
 
-function handleEventsUi(){
-    function toggleVisibility() { eventHandlerUi.style.visibility = 'hidden'; }
-    function toggleEventsUi() {
-        if (window.getComputedStyle(eventHandlerUi).visibility == 'hidden') {
+function handleActionsUi(){
+    function toggleVisibility() { actionHandlerUi.style.visibility = 'hidden'; }
+    function toggleActionsUi() {
+        if (window.getComputedStyle(actionHandlerUi).visibility == 'hidden') {
             let timeline = gsap.timeline();
-            eventHandlerUi.style.visibility = 'visible';
-            timeline.to(eventHandlerUi, { duration: 0.2, width: '20em' })
-                .to(eventHandlerContainer, { duration: 0.2, opacity: 1 });
+            actionHandlerUi.style.visibility = 'visible';
+            timeline.to(actionHandlerUi, { duration: 0.2, width: '20em' })
+                .to(actionHandlerContainer, { duration: 0.2, opacity: 1 });
         } else {
             let timeline = gsap.timeline();
-            timeline.to(eventHandlerContainer, { duration: 0.2, opacity: 0 })
-                .to(eventHandlerUi, { duration: 0.2, width: '0px', onComplete: toggleVisibility });
+            timeline.to(actionHandlerContainer, { duration: 0.2, opacity: 0 })
+                .to(actionHandlerUi, { duration: 0.2, width: '0px', onComplete: toggleVisibility });
         }
     }
     if (window.getComputedStyle(libraryUi).visibility == 'visible'){
         handleLibrary();
-        setTimeout(toggleEventsUi, 400);
+        setTimeout(toggleActionsUi, 400);
     } else {
-        toggleEventsUi();
+        toggleActionsUi();
     }
     
 }
 
-document.getElementById('actions-button').onclick = document.getElementById('close-events-handler').onclick = handleEventsUi;
+document.getElementById('actions-button').onclick = document.getElementById('close-actions-handler').onclick = handleActionsUi;
 
 function handleSettingsOpen(){
     if (showNotifications && doTutorial && window.getComputedStyle(document.getElementById("settings-box")).visibility == "hidden"){
@@ -813,10 +813,10 @@ canvas.addEventListener("click", (event) => {
 
 
 window.addEventListener('resize', () => {
-    camera.aspect = parseInt(window.getComputedStyle(topUI).width) / parseInt(window.getComputedStyle(rightUI).height);
+    camera.aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
     camera.updateProjectionMatrix();
-
-    renderer.setSize(parseInt(window.getComputedStyle(topUI).width), parseInt(window.getComputedStyle(rightUI).height));
+    console.log('test');
+    renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
 
 });
 
