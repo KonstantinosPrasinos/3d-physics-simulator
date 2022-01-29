@@ -10,7 +10,7 @@ let canvas = document.getElementById("viewportCanvas");
 let topTime = document.getElementById("time");
 let togglePauseButton = document.getElementById("top-play");
 
-let savedObjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, frustumSize = 40, statsOn = false, stats, currentlyCheckedBox;
+let savedObjects = [], scene, renderer, camera, orthographicCamera, perspectiveCamera, world, timeStep = 1 / 60, orbitControls, transformControls, previousLogedTime, statsOn = false, stats, currentlyCheckedBox;
 let aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
 let actionList = [];
 const uuidMap = new Map();
@@ -1154,7 +1154,7 @@ function initControls() {
 function initThree() {
     scene = new THREE.Scene();
 
-    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 10000);
+    orthographicCamera = new THREE.OrthographicCamera(parseInt(window.getComputedStyle(canvas).width) / - 80, parseInt(window.getComputedStyle(canvas).width) / 80, parseInt(window.getComputedStyle(canvas).height) / 80, parseInt(window.getComputedStyle(canvas).height) / - 80, 1, 10000);
     perspectiveCamera = new THREE.PerspectiveCamera(45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
     orthographicCamera.position.z = 50;
     perspectiveCamera.position.z = 50;
@@ -1659,4 +1659,4 @@ initControls();
 
 animate();
 
-export { deleteAllActions, deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action };
+export { deleteAllActions, scene,  deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action };

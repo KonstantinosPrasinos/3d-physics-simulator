@@ -64,9 +64,6 @@
           "Log";
         overflow-wrap: break-word;
     }
-    #log {
-        height: calc(100% - 4em);
-    }
 }
 
 @media only screen and (min-width: 1050px) and (max-width: 1469px){
@@ -726,7 +723,7 @@ input {
 }
 
 #log {
-    height: 11em;
+    height: 70%;
     overflow: auto;
     width: 100%;
     display: inline-block;

@@ -1,4 +1,4 @@
-import {deleteAllActions, deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action} from './main.js';
+import {deleteAllActions, deleteEventListeners, createNotification, simulation, transformControls, orbitControls, camera, copyobjects, renderer, updateVectors, printToLog, generateJSON, setCamera, scene, rewindObjects, toggleStats, changeTimeStep, toggleResultantForceVector, toggleComponentForcesVectors, toggleResultantVelocityVector, toggleComponentVelocityVectors, switchControls, setDisabledPhysical, setDisabledVisual, toggleValues, updateValuesWhileRunning, world, actionList, resumeSimulation, pauseSimulation, createSelections, Action} from './main.js';
 
 import {notificationList} from './notifications.js';
 
@@ -815,10 +815,20 @@ canvas.addEventListener("click", (event) => {
 
 
 window.addEventListener('resize', () => {
-    camera.aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
+    if (parseInt(window.innerWidth) >= 686){
+        renderer.setSize(window.innerWidth - 3.6 * parseFloat(window.getComputedStyle(document.getElementById('app')).fontSize), window.innerHeight - 2.5 * parseFloat(window.getComputedStyle(document.getElementById('app')).fontSize));
+    } else {
+        renderer.setSize(window.innerWidth - 3.6 * parseFloat(window.getComputedStyle(document.getElementById('app')).fontSize), window.innerHeight - 5 * parseFloat(window.getComputedStyle(document.getElementById('app')).fontSize));
+    }
+    if (camera.type == 'OrthographicCamera'){
+        camera.left = parseFloat(window.getComputedStyle(canvas).width) / -80;
+        camera.right = parseFloat(window.getComputedStyle(canvas).width) / 80;
+        camera.top = parseFloat(window.getComputedStyle(canvas).height) / 80;
+        camera.bottom = parseFloat(window.getComputedStyle(canvas).height) / -80;
+    } else {
+        camera.aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
+    }
     camera.updateProjectionMatrix();
-    renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
-
 });
 
 //Size Setting
