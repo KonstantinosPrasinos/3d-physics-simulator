@@ -1203,8 +1203,6 @@ document.getElementById("notification-toggle").addEventListener("click", (event)
     }
 });
 
-initStyling();
-
 function loadfromJson(json) {
     simulation.removeAllObjects();
     let data = json[0];
@@ -1518,3 +1516,5 @@ function createActionField(){
 }
 
 document.getElementById('add-action').onclick = createActionField;
+
+initStyling();

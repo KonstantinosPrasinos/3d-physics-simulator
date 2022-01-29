@@ -21,7 +21,6 @@ function changeTimeStep(temp) {
 }
 
 function setCamera(cameraType) {
-    
     if (camera.type != cameraType) {
         switch (cameraType) {
             case "PerspectiveCamera":
@@ -257,47 +256,24 @@ function updateValuesWhileRunning(bool) {
     updateVarValues(bool);
 }
 
-//Init Functions
+//Action Handling Functions
 
-function initControls() {
-    orbitControls = new OrbitControls(camera, renderer.domElement);
-    transformControls = new TransformControls(camera, renderer.domElement);
-    transformControls.enabled = false;
-    orbitControls.enabled = true;
-    scene.add(transformControls);
+class Action {
+    static actionsCreated = 0;
+    constructor() {
+        this.selection1;
+        this.selection2;
+        this.selection3;
+        this.selection4;
+        this.id = Action.actionsCreated;
+        this.event1 = [];
+        this.event2 = [];
+        this.event3 = [];
+        this.event4 = [];
+        this.deleteButtonAction;
+        Action.actionsCreated++;
+    }
 }
-
-
-function initThree() {
-    scene = new THREE.Scene();
-
-    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 10000);
-    perspectiveCamera = new THREE.PerspectiveCamera(45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
-    orthographicCamera.position.z = 50;
-    perspectiveCamera.position.z = 50;
-    scene.add(orthographicCamera);
-    scene.add(perspectiveCamera);
-    camera = orthographicCamera;
-
-    renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true });
-    renderer.setClearColor(0xffffff, 1);
-    renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
-    stats = Stats();
-}
-
-function initCannon() {
-    world = new CANNON.World();
-    world.gravity.set(0, 0, 0);
-    world.broadphase = new CANNON.NaiveBroadphase();
-    world.solver.iterations = 10;
-    // world.dt = timeStep;
-    world.defaultContactMaterial.contactEquationStiffness = 1e7;
-    world.defaultContactMaterial.contactEquationRelaxation = 8;
-    world.defaultContactMaterial.friction = 0;
-    world.defaultContactMaterial.restitution = 0;
-}
-
-//Timed Functions
 
 function deleteAllActions(){
     for (let i in actionList){
@@ -383,94 +359,6 @@ function handleActions() {
                 }
             }
         }
-    }
-}
-
-function attemptPrintPerStep() {
-    if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time) {
-        printToLog('Print step reached');
-        previousLogedTime = world.time;
-    }
-}
-
-function setPreviousMetrics(object){
-    object.mesh.userData.previousMetrics.position.x = object.mesh.position.x;
-    object.mesh.userData.previousMetrics.position.y = object.mesh.position.y;
-    object.mesh.userData.previousMetrics.position.z = object.mesh.position.z;
-    object.mesh.userData.previousMetrics.rotation.x = object.mesh.rotation.x;
-    object.mesh.userData.previousMetrics.rotation.y = object.mesh.rotation.y;
-    object.mesh.userData.previousMetrics.rotation.z = object.mesh.rotation.z;
-    object.mesh.userData.previousMetrics.velocity.x = object.body.velocity.x;
-    object.mesh.userData.previousMetrics.velocity.y = object.body.velocity.y;
-    object.mesh.userData.previousMetrics.velocity.z = object.body.velocity.z;
-    object.mesh.userData.previousMetrics.angularVelocity.x = object.body.angularVelocity.x;
-    object.mesh.userData.previousMetrics.angularVelocity.y = object.body.angularVelocity.y;
-    object.mesh.userData.previousMetrics.angularVelocity.z = object.body.angularVelocity.z;
-    object.mesh.userData.previousMetrics.force.x = object.body.force.x;
-    object.mesh.userData.previousMetrics.force.y = object.body.force.y;
-    object.mesh.userData.previousMetrics.force.z = object.body.force.z;
-}
-
-function updatePhysics() {
-    simulation.objects.forEach(element => setPreviousMetrics(element));
-    world.step(timeStep * 2, timeStep * 2, 1);
-    attemptPrintPerStep();
-    simulation.objects.forEach(element => {
-        element.mesh.position.copy(element.body.position);
-        element.mesh.quaternion.copy(element.body.quaternion);
-    });
-    updateVarValues(true);
-}
-
-function render() {
-    topTime.innerText = (parseFloat(world.time) / 2).toFixed(3);
-    renderer.render(scene, camera);
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    if (!simulation.isPaused) {
-        updatePhysics();
-        handleActions();
-    }
-    render();
-
-    if (statsOn) {
-        stats.update();
-    }
-
-    for (let i in simulation.objects) {
-        if (simulation.objects[i].mesh.userData.hasVectors) {
-            updateVectors(simulation.objects[i]);
-        }
-    }
-}
-
-//General Functions
-
-function toggleStats(bool) {
-    if (bool) {
-        document.body.appendChild(stats.dom);
-    } else {
-        document.body.removeChild(stats.dom);
-    }
-    statsOn = bool;
-}
-
-class Action {
-    static actionsCreated = 0;
-    constructor() {
-        this.selection1;
-        this.selection2;
-        this.selection3;
-        this.selection4;
-        this.id = Action.actionsCreated;
-        this.event1 = [];
-        this.event2 = [];
-        this.event3 = [];
-        this.event4 = [];
-        this.deleteButtonAction;
-        Action.actionsCreated++;
     }
 }
 
@@ -693,16 +581,6 @@ function addObjectsToDropdown(serial, parent){
     });
 }
 
-function reAssignUuids(){
-    for (let action of actionList){
-        for (let i in action){
-            if (uuidMap.has(action[i])){
-                action[i] = uuidMap.get(action[i]);
-            }
-        }
-    }
-}
-
 function updateObjectsInActions(source, uuid){
     if (actionList.length){
         let containers = document.getElementsByClassName('target-dropdown');
@@ -721,72 +599,75 @@ function updateObjectsInActions(source, uuid){
     }
 }
 
+//Notification Functions
 
+let tempTimeout, tempGSAP = gsap.timeline();
+let notifications = [];
 
-function rewindObjects() {
-    simulation.removeAllObjects();
-    simulation.objects = savedObjects;
-    savedObjects = [];
-    simulation.addAllObjects();
-    refreshListOfObjects();
-    updateObjectsInActions();
-    reAssignUuids();
-}
-
-function generateJSON() {
-    let logObj = {};
-    let timeLine = {}
-    simulation.objects.forEach((item) => {
-        timeLine[item.mesh.uuid] = { name: item.mesh.name, mass: item.body.mass, position: { x: item.body.position.x, y: item.body.position.y, z: item.body.position.z }, velocity: { x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z }, rotation: { x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z }, angularVelocity: { x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z }, force: { x: item.body.force.x, y: item.body.force.y, z: item.body.force.z }, isWireframe: item.mesh.material.wireframe, color: item.mesh.material.color.getHexString()};
-        switch (item.mesh.geometry.type) {
-            case "SphereGeometry":
-                timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radius * item.mesh.scale.x };
-                timeLine[item.mesh.uuid].geometryType = "SphereGeometry";
-                break;
-            case "BoxGeometry":
-                timeLine[item.mesh.uuid].dimensions = { x: item.mesh.geometry.parameters.width * item.mesh.scale.x, y: item.mesh.geometry.parameters.height * item.mesh.scale.y, z: item.mesh.geometry.parameters.depth * item.mesh.scale.z };
-                timeLine[item.mesh.uuid].geometryType = "BoxGeometry";
-                break;
-            case "CylinderGeometry":
-                timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radiusTop * item.mesh.scale.x, height: item.mesh.geometry.parameters.height * item.mesh.scale.y };
-                timeLine[item.mesh.uuid].geometryType = "CylinderGeometry";
-                break;
-        }
-    });
-    logObj[parseInt(world.time)] = timeLine;
-    logObj['camera'] = {type: camera.type, position: {x: camera.position.x, y: camera.position.y, z: camera.position.z}, rotation: {x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z}, zoom: camera.zoom};
-    logObj['world'] = {gravity: {x: world.gravity.x, y: world.gravity.y, z: world.gravity.z}}
-    return logObj;
-}
-
-function printToLog(reason) {
-    let log = document.getElementById('log');
-    if (!simulation.savedLog) {
-        simulation.savedLog = generateJSON();
-    } else {
-        let line = generateJSON();
-        for (const index in line) {
-            simulation.savedLog[index] = line[index];
+function closeNotification(){
+    let notificationPopup = document.getElementById("notification-popup");
+    clearTimeout(tempTimeout);
+    function hideNotification(){
+        notificationPopup.style.visibility = "hidden";
+        notifications.shift();
+        if (notifications.length > 0) {
+            let temp = showNotifications;
+            showNotifications = true;
+            createNotification(notifications[0], false);
+            showNotifications = temp;
         }
     }
-    log.innerHTML += `Reason of print: ${reason}. At time ${parseFloat(world.time).toFixed(3)}:`;
-    if (simulation.objects.length) {
-        log.innerHTML += "<br>";
-        log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
-        log.innerHTML += "<br>";
-        simulation.objects.forEach((item) => {
-            log.innerHTML += `${item.mesh.name} | ${item.body.mass} | ${item.body.position.x}, ${item.body.position.y}, ${item.body.position.z} | ${item.body.velocity.x}, ${item.body.velocity.y}, ${item.body.velocity.z} | `;
-            log.innerHTML += `${item.mesh.rotation.x}, ${item.mesh.rotation.y}, ${item.mesh.rotation.z} | ${item.body.angularVelocity.x}, ${item.body.angularVelocity.y}, ${item.body.angularVelocity.z} | ${item.body.force.x}, ${item.body.force.y}, ${item.body.force.z}`;
-            log.innerHTML += "<br>";
-        });
-        log.innerHTML += "<br>";
-    } else {
-        log.innerHTML += "<br>";
-        log.innerHTML += "No items in scene";
-        log.innerHTML += "<br>";
-        log.innerHTML += "<br>";
+    tempGSAP.to(notificationPopup, {duration: 0.2, opacity: 0, onComplete: hideNotification});
+}
+
+function createNotification(notification, bool){
+    if (localStorage.getItem("showNotifications")) {
+        if (notifications.length < 1 || notification.type.concat(": ", notification.msg) != document.getElementById("notification-popup-text").innerHTML) {
+            if (bool || notifications.length == 0) {
+                notifications.push(notification);
+            }
+            let notificationPopup = document.getElementById("notification-popup");
+            if (window.getComputedStyle(notificationPopup).visibility == "hidden") {
+                switch (notifications[0].type) {
+                    case "Error":
+                        notificationPopup.style.borderColor = "#ff0000";
+                        break;
+                    case "Warning":
+                        notificationPopup.style.borderColor = "#fd7014";
+                        break;
+                    case "Tutorial":
+                        notificationPopup.style.borderColor = "#3498db";
+                        if (!simulation.doTutorial){
+                            return;
+                        }
+                        break;
+                    default:
+                        notificationPopup.style.borderColor = "var(--secondary-color)"
+                        break;
+                }
+                document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
+                notificationPopup.style.visibility = "visible";
+                tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
+                tempTimeout = setTimeout(closeNotification, 3000);
+            }
+        }
     }
 }
+
+function handleMouseEnter(){
+    clearTimeout(tempTimeout);
+}
+
+function handleMouseLeave(){
+    tempTimeout = setTimeout(closeNotification, 3000);
+}
+
+document.getElementById("close-notification-popup").onclick = closeNotification;
+document.getElementById("notification-popup").onmouseenter = handleMouseEnter;
+document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
+
+
+//Object List Functions
 
 function addItemToList(index) {
     updateObjectsInActions();
@@ -927,71 +808,6 @@ function deleteObjectFromList(index) {
     refreshListOfObjects();
 }
 
-let tempTimeout, tempGSAP = gsap.timeline();
-let notifications = [];
-
-function closeNotification(){
-    let notificationPopup = document.getElementById("notification-popup");
-    clearTimeout(tempTimeout);
-    function hideNotification(){
-        notificationPopup.style.visibility = "hidden";
-        notifications.shift();
-        if (notifications.length > 0) {
-            let temp = showNotifications;
-            showNotifications = true;
-            createNotification(notifications[0], false);
-            showNotifications = temp;
-        }
-    }
-    tempGSAP.to(notificationPopup, {duration: 0.2, opacity: 0, onComplete: hideNotification});
-}
-
-function createNotification(notification, bool){
-    if (localStorage.getItem("showNotifications")) {
-        if (notifications.length < 1 || notification.type.concat(": ", notification.msg) != document.getElementById("notification-popup-text").innerHTML) {
-            if (bool || notifications.length == 0) {
-                notifications.push(notification);
-            }
-            let notificationPopup = document.getElementById("notification-popup");
-            if (window.getComputedStyle(notificationPopup).visibility == "hidden") {
-                switch (notifications[0].type) {
-                    case "Error":
-                        notificationPopup.style.borderColor = "#ff0000";
-                        break;
-                    case "Warning":
-                        notificationPopup.style.borderColor = "#fd7014";
-                        break;
-                    case "Tutorial":
-                        notificationPopup.style.borderColor = "#3498db";
-                        if (!simulation.doTutorial){
-                            return;
-                        }
-                        break;
-                    default:
-                        notificationPopup.style.borderColor = "var(--secondary-color)"
-                        break;
-                }
-                document.getElementById("notification-popup-text").innerHTML = notifications[0].type.concat(": ", notifications[0].msg);
-                notificationPopup.style.visibility = "visible";
-                tempGSAP.to(notificationPopup, { duration: 0.2, opacity: 1 });
-                tempTimeout = setTimeout(closeNotification, 3000);
-            }
-        }
-    }
-}
-
-function handleMouseEnter(){
-    clearTimeout(tempTimeout);
-}
-
-function handleMouseLeave(){
-    tempTimeout = setTimeout(closeNotification, 3000);
-}
-
-document.getElementById("close-notification-popup").onclick = closeNotification;
-document.getElementById("notification-popup").onmouseenter = handleMouseEnter;
-document.getElementById("notification-popup").onmouseleave = handleMouseLeave;
-
 function refreshListOfObjects() {
     while (document.getElementById("right-ui-item-container").firstChild) {
         document.getElementById("right-ui-item-container").removeChild(document.getElementById("right-ui-item-container").firstChild);
@@ -1000,6 +816,8 @@ function refreshListOfObjects() {
         addItemToList(index);
     }
 }
+
+//Object Vectors Functions
 
 function updateVectors(object) {
     let F, V, direction, length, origin = object.mesh.position;
@@ -1319,6 +1137,194 @@ function toggleComponentVelocityVectors(object) {
         arrowHelperZ.cone.material.depthTest = false;
         arrowHelperZ.cone.renderOrder = Infinity;
         object.mesh.add(arrowHelperZ);
+    }
+}
+
+//Init Functions
+
+function initControls() {
+    orbitControls = new OrbitControls(camera, renderer.domElement);
+    transformControls = new TransformControls(camera, renderer.domElement);
+    transformControls.enabled = false;
+    orbitControls.enabled = true;
+    scene.add(transformControls);
+}
+
+
+function initThree() {
+    scene = new THREE.Scene();
+
+    orthographicCamera = new THREE.OrthographicCamera(frustumSize * aspect / - 2, frustumSize * aspect / 2, frustumSize / 2, frustumSize / - 2, 1, 10000);
+    perspectiveCamera = new THREE.PerspectiveCamera(45, parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height), 1, 2000);
+    orthographicCamera.position.z = 50;
+    perspectiveCamera.position.z = 50;
+    scene.add(orthographicCamera);
+    scene.add(perspectiveCamera);
+    camera = orthographicCamera;
+
+    renderer = new THREE.WebGLRenderer({ canvas: viewportCanvas, antialias: true });
+    renderer.setClearColor(0xffffff, 1);
+    renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
+    stats = Stats();
+}
+
+function initCannon() {
+    world = new CANNON.World();
+    world.gravity.set(0, 0, 0);
+    world.broadphase = new CANNON.NaiveBroadphase();
+    world.solver.iterations = 10;
+    // world.dt = timeStep;
+    world.defaultContactMaterial.contactEquationStiffness = 1e7;
+    world.defaultContactMaterial.contactEquationRelaxation = 8;
+    world.defaultContactMaterial.friction = 0;
+    world.defaultContactMaterial.restitution = 0;
+}
+
+//Timed Functions
+
+function attemptPrintPerStep() {
+    if (simulation.logPerSteps != 0 && ((world.time / world.dt) % simulation.logPerSteps < world.dt || Math.abs(simulation.logPerSteps - (world.time / world.dt) % simulation.logPerSteps) < world.dt) && previousLogedTime != world.time) {
+        printToLog('Print step reached');
+        previousLogedTime = world.time;
+    }
+}
+
+function setPreviousMetrics(object){
+    object.mesh.userData.previousMetrics.position.x = object.mesh.position.x;
+    object.mesh.userData.previousMetrics.position.y = object.mesh.position.y;
+    object.mesh.userData.previousMetrics.position.z = object.mesh.position.z;
+    object.mesh.userData.previousMetrics.rotation.x = object.mesh.rotation.x;
+    object.mesh.userData.previousMetrics.rotation.y = object.mesh.rotation.y;
+    object.mesh.userData.previousMetrics.rotation.z = object.mesh.rotation.z;
+    object.mesh.userData.previousMetrics.velocity.x = object.body.velocity.x;
+    object.mesh.userData.previousMetrics.velocity.y = object.body.velocity.y;
+    object.mesh.userData.previousMetrics.velocity.z = object.body.velocity.z;
+    object.mesh.userData.previousMetrics.angularVelocity.x = object.body.angularVelocity.x;
+    object.mesh.userData.previousMetrics.angularVelocity.y = object.body.angularVelocity.y;
+    object.mesh.userData.previousMetrics.angularVelocity.z = object.body.angularVelocity.z;
+    object.mesh.userData.previousMetrics.force.x = object.body.force.x;
+    object.mesh.userData.previousMetrics.force.y = object.body.force.y;
+    object.mesh.userData.previousMetrics.force.z = object.body.force.z;
+}
+
+function updatePhysics() {
+    simulation.objects.forEach(element => setPreviousMetrics(element));
+    world.step(timeStep * 2, timeStep * 2, 1);
+    attemptPrintPerStep();
+    simulation.objects.forEach(element => {
+        element.mesh.position.copy(element.body.position);
+        element.mesh.quaternion.copy(element.body.quaternion);
+    });
+    updateVarValues(true);
+}
+
+function render() {
+    topTime.innerText = (parseFloat(world.time) / 2).toFixed(3);
+    renderer.render(scene, camera);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    if (!simulation.isPaused) {
+        updatePhysics();
+        handleActions();
+    }
+    render();
+
+    if (statsOn) {
+        stats.update();
+    }
+
+    for (let i in simulation.objects) {
+        if (simulation.objects[i].mesh.userData.hasVectors) {
+            updateVectors(simulation.objects[i]);
+        }
+    }
+}
+
+//General Functions
+
+function toggleStats(bool) {
+    if (bool) {
+        document.body.appendChild(stats.dom);
+    } else {
+        document.body.removeChild(stats.dom);
+    }
+    statsOn = bool;
+}
+
+function reAssignUuids(){
+    for (let action of actionList){
+        for (let i in action){
+            if (uuidMap.has(action[i])){
+                action[i] = uuidMap.get(action[i]);
+            }
+        }
+    }
+}
+
+function rewindObjects() {
+    simulation.removeAllObjects();
+    simulation.objects = savedObjects;
+    savedObjects = [];
+    simulation.addAllObjects();
+    refreshListOfObjects();
+    updateObjectsInActions();
+    reAssignUuids();
+}
+
+function generateJSON() {
+    let logObj = {};
+    let timeLine = {}
+    simulation.objects.forEach((item) => {
+        timeLine[item.mesh.uuid] = { name: item.mesh.name, mass: item.body.mass, position: { x: item.body.position.x, y: item.body.position.y, z: item.body.position.z }, velocity: { x: item.body.velocity.x, y: item.body.velocity.y, z: item.body.velocity.z }, rotation: { x: item.mesh.rotation.x, y: item.mesh.rotation.y, z: item.mesh.rotation.z }, angularVelocity: { x: item.body.angularVelocity.x, y: item.body.angularVelocity.y, z: item.body.angularVelocity.z }, force: { x: item.body.force.x, y: item.body.force.y, z: item.body.force.z }, isWireframe: item.mesh.material.wireframe, color: item.mesh.material.color.getHexString()};
+        switch (item.mesh.geometry.type) {
+            case "SphereGeometry":
+                timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radius * item.mesh.scale.x };
+                timeLine[item.mesh.uuid].geometryType = "SphereGeometry";
+                break;
+            case "BoxGeometry":
+                timeLine[item.mesh.uuid].dimensions = { x: item.mesh.geometry.parameters.width * item.mesh.scale.x, y: item.mesh.geometry.parameters.height * item.mesh.scale.y, z: item.mesh.geometry.parameters.depth * item.mesh.scale.z };
+                timeLine[item.mesh.uuid].geometryType = "BoxGeometry";
+                break;
+            case "CylinderGeometry":
+                timeLine[item.mesh.uuid].dimensions = { radius: item.mesh.geometry.parameters.radiusTop * item.mesh.scale.x, height: item.mesh.geometry.parameters.height * item.mesh.scale.y };
+                timeLine[item.mesh.uuid].geometryType = "CylinderGeometry";
+                break;
+        }
+    });
+    logObj[parseInt(world.time)] = timeLine;
+    logObj['camera'] = {type: camera.type, position: {x: camera.position.x, y: camera.position.y, z: camera.position.z}, rotation: {x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z}, zoom: camera.zoom};
+    logObj['world'] = {gravity: {x: world.gravity.x, y: world.gravity.y, z: world.gravity.z}}
+    return logObj;
+}
+
+function printToLog(reason) {
+    let log = document.getElementById('log');
+    if (!simulation.savedLog) {
+        simulation.savedLog = generateJSON();
+    } else {
+        let line = generateJSON();
+        for (const index in line) {
+            simulation.savedLog[index] = line[index];
+        }
+    }
+    log.innerHTML += `Reason of print: ${reason}. At time ${parseFloat(world.time).toFixed(3)}:`;
+    if (simulation.objects.length) {
+        log.innerHTML += "<br>";
+        log.innerHTML += "Name - Mass - Position - Velocity - Rotation - Angular Velocity - Force";
+        log.innerHTML += "<br>";
+        simulation.objects.forEach((item) => {
+            log.innerHTML += `${item.mesh.name} | ${item.body.mass} | ${item.body.position.x}, ${item.body.position.y}, ${item.body.position.z} | ${item.body.velocity.x}, ${item.body.velocity.y}, ${item.body.velocity.z} | `;
+            log.innerHTML += `${item.mesh.rotation.x}, ${item.mesh.rotation.y}, ${item.mesh.rotation.z} | ${item.body.angularVelocity.x}, ${item.body.angularVelocity.y}, ${item.body.angularVelocity.z} | ${item.body.force.x}, ${item.body.force.y}, ${item.body.force.z}`;
+            log.innerHTML += "<br>";
+        });
+        log.innerHTML += "<br>";
+    } else {
+        log.innerHTML += "<br>";
+        log.innerHTML += "No items in scene";
+        log.innerHTML += "<br>";
+        log.innerHTML += "<br>";
     }
 }
 
