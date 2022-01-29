@@ -1129,10 +1129,30 @@ document.getElementById("background-color-picker").addEventListener("change", (e
     setBackgroundColor(event.target.value);
 })
 
+function handleAddObject(shape){
+    switch (shape) {
+        case 'box':
+            simulation.createBox('none', 0, 0, 2, 2, 2);
+            break;
+        case 'sphere':
+            simulation.createSphere('none', 0, 0, 1);
+            break;
+        case 'cylinder':
+            simulation.createCylinder('none', 0, 0, 1, 5);
+            break;
+        default:
+            break;
+    }
+
+    if (showNotifications && simulation.doTutorial){
+        createNotification(notificationList.tutAddingObject, false);
+    }
+}
+
 //Temp
-document.getElementById("add-cube-button").onclick = simulation.createBox.bind(simulation, 'none', 0, 0, 2, 2, 2);
-document.getElementById("add-sphere-button").onclick = simulation.createSphere.bind(simulation, 'none', 0, 0, 1);
-document.getElementById("add-cylinder-button").onclick = simulation.createCylinder.bind(simulation, 'none', 0, 0, 1, 5);
+document.getElementById("add-cube-button").onclick = handleAddObject.bind(this, 'box');
+document.getElementById("add-sphere-button").onclick = handleAddObject.bind(this, 'sphere');
+document.getElementById("add-cylinder-button").onclick = shandleAddObject.bind(this, 'cylinder');
 
 function handleWireFrameToggle(){
     if (document.getElementById("wireframe-toggle").checked && simulation.itemSelected > -1){
@@ -1341,6 +1361,7 @@ function handleTutorialToggle(bool){
     simulation.doTutorial = bool;
     if (bool && showNotifications){
         createNotification(notificationList.tutStart, true);
+        createNotification(notificationList.tutControls, true);
         console.log(document.getElementById('left-ui').onmouseenter);
         document.getElementById("left-ui").onmouseenter = createNotification.bind(this, notificationList.tutLeft, false);
         document.getElementById("add-cube-button").onmouseenter = createNotification.bind(this, notificationList.tutBox, false);

@@ -51,5 +51,7 @@ export let notificationList = {
     tutDownloads: new Notification("Tutorial", "Using these buttons you can download the log either in a txt format or in a json format. You can either download the entire log, or only the current timestamp."),
     copyEmail: new Notification("Copied to Clipboard", "konstantinos.prasinos@gmail.com"),
     simulationRunning: new Notification("Warning", "you cannot do this while the simulation is running."),
-    actionObjectDeleted: new Notification("Warning", "you deleted an object that was used in an action, so the action has been deleted as well.")
+    actionObjectDeleted: new Notification("Warning", "you deleted an object that was used in an action, so the action has been deleted as well."),
+    tutAddingObject: new Notification("Tutorial", "Double click to place object, hold shift and use the mouse wheel to move it closer or further (relative to the camera)."),
+    tutControls: new Notification("Tutorial", "The camera controls are as follows; Hold Right click and move the mouse to move the camera. Hold Left click and move the mouse to rotate the camera. Use the mouseWheel to zoom.")
 }
