@@ -438,20 +438,18 @@ document.getElementById("perspective-button").onclick = handleCameraButton.bind(
 document.getElementById("orthographic-button").onclick = handleCameraButton.bind(this, "OrthographicCamera");
 
 function selectCursorMove(){
-    if (transformControls.mode != 'translate' || !transformControls.enabled) {
-        document.getElementById("top-select").style.backgroundColor = "orange";
-        document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
-        document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
-        transformControls.setMode('translate');
-        transformControls.enabled = true;
-        if (camera.type != "PerspectiveCamera"){
+    if (!simulation.isRunning){
+        if (transformControls.mode != 'translate' || !transformControls.enabled) {
+            document.getElementById("top-select").style.backgroundColor = "orange";
+            document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
+            document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
+            transformControls.setMode('translate');
+            transformControls.enabled = true;
             orbitControls.enabled = false;
-        }
-    } else {
-        transformControls.detach();
-        document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
-        transformControls.enabled = false;
-        if (camera.type != "PerspectiveCamera"){
+        } else {
+            transformControls.detach();
+            document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
+            transformControls.enabled = false;
             orbitControls.enabled = true;
         }
     }
@@ -460,21 +458,23 @@ function selectCursorMove(){
 document.getElementById("top-select").onclick = selectCursorMove;
 
 function selectCursorScale(){
-    if (transformControls.mode != 'scale' || !transformControls.enabled) {
-        document.getElementById("top-resize").style.backgroundColor = "orange";
-        document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
-        document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
-        transformControls.setMode('scale');
-        transformControls.enabled = true;
-        if (camera.type != "PerspectiveCamera"){
-            orbitControls.enabled = false;
-        }
-    } else {
-        transformControls.detach();
-        document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
-        transformControls.enabled = false;
-        if (camera.type != "PerspectiveCamera"){
-            orbitControls.enabled = true;
+    if (!simulation.isRunning){
+        if (transformControls.mode != 'scale' || !transformControls.enabled) {
+            document.getElementById("top-resize").style.backgroundColor = "orange";
+            document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
+            document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
+            transformControls.setMode('scale');
+            transformControls.enabled = true;
+            if (camera.type != "PerspectiveCamera"){
+                orbitControls.enabled = false;
+            }
+        } else {
+            transformControls.detach();
+            document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
+            transformControls.enabled = false;
+            if (camera.type != "PerspectiveCamera"){
+                orbitControls.enabled = true;
+            }
         }
     }
 }
@@ -482,21 +482,23 @@ function selectCursorScale(){
 document.getElementById("top-resize").onclick = selectCursorScale;
 
 function selectCursorRotate(){
-    if (transformControls.mode != 'rotate' || !transformControls.enabled) {
-        document.getElementById("top-rotate").style.backgroundColor = "orange";
-        document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
-        document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
-        transformControls.setMode('rotate');
-        transformControls.enabled = true;
-        if (camera.type != "PerspectiveCamera"){
-            orbitControls.enabled = false;
-        }
-    } else {
-        transformControls.detach();
-        document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
-        transformControls.enabled = false;
-        if (camera.type != "PerspectiveCamera"){
-            orbitControls.enabled = true;
+    if (!simulation.isRunning){
+        if (transformControls.mode != 'rotate' || !transformControls.enabled) {
+            document.getElementById("top-rotate").style.backgroundColor = "orange";
+            document.getElementById("top-resize").style.backgroundColor = "var(--secondary-color)";
+            document.getElementById("top-select").style.backgroundColor = "var(--secondary-color)";
+            transformControls.setMode('rotate');
+            transformControls.enabled = true;
+            if (camera.type != "PerspectiveCamera"){
+                orbitControls.enabled = false;
+            }
+        } else {
+            transformControls.detach();
+            document.getElementById("top-rotate").style.backgroundColor = "var(--secondary-color)";
+            transformControls.enabled = false;
+            if (camera.type != "PerspectiveCamera"){
+                orbitControls.enabled = true;
+            }
         }
     }
 }
@@ -606,6 +608,12 @@ document.getElementById("top-play").onclick = function togglePause(){
     if (mode == "setup"){
         simulation.isRunning = true;
         document.getElementById("top-reset").classList.remove('disabled-button');
+        document.getElementById("top-select").classList.add('disabled-button');
+        document.getElementById("top-rotate").classList.add('disabled-button');
+        document.getElementById("top-resize").classList.add('disabled-button');
+        document.getElementById("add-cube-button").classList.add('disabled-button');
+        document.getElementById("add-sphere-button").classList.add('disabled-button');
+        document.getElementById("add-cylinder-button").classList.add('disabled-button');
         if (transformControls.enabled){
             switch (transformControls.mode) {
                 case 'translate':
@@ -652,6 +660,12 @@ document.getElementById("top-reset").onclick = async function toggleMode(){
             switchControls('transform');
         }
         document.getElementById("top-reset").classList.add('disabled-button');
+        document.getElementById("top-select").classList.remove('disabled-button');
+        document.getElementById("top-rotate").classList.remove('disabled-button');
+        document.getElementById("top-resize").classList.remove('disabled-button');
+        document.getElementById("add-cube-button").classList.remove('disabled-button');
+        document.getElementById("add-sphere-button").classList.remove('disabled-button');
+        document.getElementById("add-cylinder-button").classList.remove('disabled-button');
     }
 }
 
@@ -736,7 +750,14 @@ function handleCanvasClick(event, bool){
                     transformControls.attach(simulation.objects[index].mesh);
                     canClickCanvas = true;
                     invalidClicksCanvas = 0;
-                    document.getElementById(intersectedObjects[0].object.uuid).childNodes[0].checked = true;
+                    let itemList = document.getElementsByClassName('item-list-field');
+                    for (let i=0; i < itemList.length; i++) {
+                        if (itemList[i].id == intersectedObjects[0].object.uuid){
+                            itemList[i].childNodes[0].checked = true;
+                        } else {
+                           itemList[i].childNodes[0].checked = false;
+                        }
+                    }
                     setDisabledVisual(false);
                     setDisabledPhysical(false);
                     toggleValues(true);
@@ -796,7 +817,6 @@ canvas.addEventListener("click", (event) => {
 window.addEventListener('resize', () => {
     camera.aspect = parseInt(window.getComputedStyle(canvas).width) / parseInt(window.getComputedStyle(canvas).height);
     camera.updateProjectionMatrix();
-    console.log('test');
     renderer.setSize(parseInt(window.getComputedStyle(canvas).width), parseInt(window.getComputedStyle(canvas).height));
 
 });
@@ -865,7 +885,7 @@ xPos.addEventListener("blur", () => {
         xPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (xPos.value = '-0'){
+        if (xPos.value == '-0'){
             xPos.value = '0';
         }
         simulation.objects[simulation.itemSelected].mesh.position.x = parseFloat(xPos.value);
@@ -878,7 +898,7 @@ yPos.addEventListener("blur", () => {
         yPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (yPos.value = '-0'){
+        if (yPos.value == '-0'){
             yPos.value = '0';
         }
         simulation.objects[simulation.itemSelected].mesh.position.y = parseFloat(yPos.value);
@@ -891,7 +911,7 @@ zPos.addEventListener("blur", () => {
         zPos.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (zPos.value = '-0'){
+        if (zPos.value == '-0'){
             zPos.value = '0';
         }
         simulation.objects[simulation.itemSelected].mesh.position.z = parseFloat(zPos.value);
@@ -910,7 +930,7 @@ xVel.addEventListener("blur", () => {
         xVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (xVel.value = '-0'){
+        if (xVel.value == '-0'){
             xVel.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.velocity.x = parseFloat(xVel.value);
@@ -922,7 +942,7 @@ yVel.addEventListener("blur", () => {
         yVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (yVel.value = '-0'){
+        if (yVel.value == '-0'){
             yVel.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.velocity.y = parseFloat(yVel.value);
@@ -934,7 +954,7 @@ zVel.addEventListener("blur", () => {
         zVel.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (zVel.value = '-0'){
+        if (zVel.value == '-0'){
             zVel.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.velocity.z = parseFloat(zVel.value);
@@ -952,7 +972,7 @@ xRot.addEventListener("blur", () => {
         xRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (xRot.value = '-0'){
+        if (xRot.value == '-0'){
             xRot.value = '0';
         }
         simulation.objects[simulation.itemSelected].mesh.rotation.x = parseFloat(xRot.value);
@@ -965,7 +985,7 @@ yRot.addEventListener("blur", () => {
         yRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (yRot.value = '-0'){
+        if (yRot.value == '-0'){
             yRot.value = '0';
         }
         simulation.objects[simulation.itemSelected].mesh.rotation.y = parseFloat(yRot.value);
@@ -978,7 +998,7 @@ zRot.addEventListener("blur", () => {
         zRot.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (zRot.value = '-0'){
+        if (zRot.value == '-0'){
             zRot.value = '0';
         }
         simulation.objects[simulation.itemSelected].mesh.rotation.z = parseFloat(zRot.value);
@@ -997,7 +1017,7 @@ xAng.addEventListener("blur", () => {
         xAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (xAng.value = '-0'){
+        if (xAng.value == '-0'){
             xAng.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.angularVelocity.x = parseFloat(xAng.value);
@@ -1009,7 +1029,7 @@ yAng.addEventListener("blur", () => {
         yAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (yAng.value = '-0'){
+        if (yAng.value == '-0'){
             yAng.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.angularVelocity.y = parseFloat(yAng.value);
@@ -1021,7 +1041,7 @@ zAng.addEventListener("blur", () => {
         zAng.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (zAng.value = '-0'){
+        if (zAng.value == '-0'){
             zAng.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.angularVelocity.z = parseFloat(zAng.value);
@@ -1039,7 +1059,7 @@ xFor.addEventListener("blur", () => {
         xFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (xFor.value = '-0'){
+        if (xFor.value == '-0'){
             xFor.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.force.x = parseFloat(xFor.value);
@@ -1051,7 +1071,7 @@ yFor.addEventListener("blur", () => {
         yFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (yFor.value = '-0'){
+        if (yFor.value == '-0'){
             yFor.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.force.y = parseFloat(yFor.value);
@@ -1063,7 +1083,7 @@ zFor.addEventListener("blur", () => {
         zFor.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (zFor.value = '-0'){
+        if (zFor.value == '-0'){
             zFor.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.force.z = parseFloat(zFor.value);
@@ -1077,7 +1097,7 @@ massInput.addEventListener("blur", () => {
         massInput.focus();
         createNotification(notificationList.inputEmpty, true);
     } else if (simulation.itemSelected > -1){
-        if (massInput.value = '-0'){
+        if (massInput.value == '-0'){
             massInput.value = '0';
         }
         simulation.objects[simulation.itemSelected].body.mass = parseFloat(massInput.value);
@@ -1362,7 +1382,6 @@ function handleTutorialToggle(bool){
     if (bool && showNotifications){
         createNotification(notificationList.tutStart, true);
         createNotification(notificationList.tutControls, true);
-        console.log(document.getElementById('left-ui').onmouseenter);
         document.getElementById("left-ui").onmouseenter = createNotification.bind(this, notificationList.tutLeft, false);
         document.getElementById("add-cube-button").onmouseenter = createNotification.bind(this, notificationList.tutBox, false);
         document.getElementById("add-sphere-button").onmouseenter = createNotification.bind(this, notificationList.tutSphere, false);
@@ -1509,7 +1528,6 @@ function addDeleteActionButton(parent, action){
     let deleteAction = function(e) {
         if (e.target && e.target.id == `delete-button-${action.id}`){
             deleteEventListeners(action, 1);
-            console.log(parent);
             document.getElementById('actions-container').removeChild(parent);
             document.removeEventListener('click', action.deleteButtonAction);
             actionList.splice(actionList.indexOf(action), 1);
@@ -1527,7 +1545,6 @@ function createActionField(){
 
     let node = document.createElement('div');
     node.classList.add('action-node');
-    console.log(action);
     node.setAttribute('id', `action-node-${action.id}`);
     addDeleteActionButton(node, action);
     node.innerHTML += 'When';

@@ -1172,12 +1172,6 @@ function initCannon() {
     world = new CANNON.World();
     world.gravity.set(0, 0, 0);
     world.broadphase = new CANNON.NaiveBroadphase();
-    world.solver.iterations = 10;
-    // world.dt = timeStep;
-    world.defaultContactMaterial.contactEquationStiffness = 1e7;
-    world.defaultContactMaterial.contactEquationRelaxation = 8;
-    world.defaultContactMaterial.friction = 0;
-    world.defaultContactMaterial.restitution = 0;
 }
 
 //Timed Functions
@@ -1209,7 +1203,7 @@ function setPreviousMetrics(object){
 
 function updatePhysics() {
     simulation.objects.forEach(element => setPreviousMetrics(element));
-    world.step(timeStep * 2, timeStep * 2, 1);
+    world.step(timeStep);
     attemptPrintPerStep();
     simulation.objects.forEach(element => {
         element.mesh.position.copy(element.body.position);
@@ -1219,7 +1213,7 @@ function updatePhysics() {
 }
 
 function render() {
-    topTime.innerText = (parseFloat(world.time) / 2).toFixed(3);
+    topTime.innerText = (parseFloat(world.time)/2).toFixed(3);
     renderer.render(scene, camera);
 }
 
@@ -1413,7 +1407,7 @@ let simulation = {
     objectPlaceDist: 50,
     doTutorial: true,
     createBox(x, y, z, width, height, depth) {
-        if (!this.placingObject) {
+        if (!this.placingObject && !simulation.isRunning) {
             let shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
             let tempBody = new CANNON.Body({
                 mass: 4
@@ -1456,7 +1450,7 @@ let simulation = {
         }
     },
     createSphere(x, y, z, radius) {
-        if (!this.placingObject) {
+        if (!this.placingObject && !simulation.isRunning) {
             let shape = new CANNON.Sphere(radius);
             let tempBody = new CANNON.Body({
                 mass: 4
@@ -1499,7 +1493,7 @@ let simulation = {
         }
     },
     createCylinder(x, y, z, radius, height) {
-        if (!this.placingObject){
+        if (!this.placingObject && !simulation.isRunning){
             let shape = new CANNON.Cylinder(radius, radius, height, Math.ceil(radius / 10) * 8);
             let tempBody = new CANNON.Body({
                 mass: 4
