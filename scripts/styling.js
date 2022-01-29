@@ -1152,7 +1152,7 @@ function handleAddObject(shape){
 //Temp
 document.getElementById("add-cube-button").onclick = handleAddObject.bind(this, 'box');
 document.getElementById("add-sphere-button").onclick = handleAddObject.bind(this, 'sphere');
-document.getElementById("add-cylinder-button").onclick = shandleAddObject.bind(this, 'cylinder');
+document.getElementById("add-cylinder-button").onclick = handleAddObject.bind(this, 'cylinder');
 
 function handleWireFrameToggle(){
     if (document.getElementById("wireframe-toggle").checked && simulation.itemSelected > -1){
