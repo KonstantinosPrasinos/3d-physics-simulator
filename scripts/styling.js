@@ -546,7 +546,7 @@ function handleLibrary() {
                 .to(libraryUi, { duration: 0.2, width: '0px', onComplete: toggleVisibility });
         }
     }
-    if (window.getComputedStyle(eventHandlerUi).visibility == 'visible'){
+    if (window.getComputedStyle(actionHandlerUi).visibility == 'visible'){
         handleEventsUi();
         setTimeout(toggleLibrary, 400);
     } else {
@@ -680,7 +680,7 @@ document.getElementById("settings-overlay").addEventListener('click', (event) =>
 //Other Event Listeners
 
 function blurFocusedElement(event){
-    if (isNaN(document.activeElement.value) && !event.target.classList.contains('item-list-editable')) {
+    if (!/^[0-9/*+-.]*$/.test(document.activeElement.value) && !event.target.classList.contains('item-list-editable')) {
         createNotification(notificationList.inputNan, true);
     } else if (document.activeElement.value.length == 0) {
         createNotification(notificationList.inputEmpty, true);
@@ -1225,7 +1225,7 @@ transformControls.addEventListener("mouseUp", () => {handleTransformControlsMous
 transformControls.addEventListener("mouseDown", () => {handleTransformControlsMouse(false)});
 
 document.getElementById("time-step-editable").addEventListener("keypress", (event) => {
-    if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '%', '+', '-'].indexOf(event.key) === -1) {
+    if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '/', '*', '+', '-', '.'].indexOf(event.key) === -1) {
         event.preventDefault();
         createNotification(notificationList.timeStepInput, true);
     }

@@ -690,6 +690,8 @@ function addItemToList(index) {
                 currentlyCheckedBox.checked = false;
             }
             simulation.itemSelected = index;
+            currentlyCheckedBox = event.target;
+            event.target.checked = true;
             document.getElementById("object-name").innerText = simulation.objects[simulation.itemSelected].mesh.name;
             switch (simulation.objects[simulation.itemSelected].mesh.geometry.type) {
                 case "SphereGeometry":
@@ -711,10 +713,9 @@ function addItemToList(index) {
             toggleValues(true);
             setDisabledVisual(false);
             if (!simulation.isRunning){
-                switchControls('transform');
                 setDisabledPhysical(false);
             }
-            currentlyCheckedBox = event.target;
+            
         } else {
             switchControls('orbit')
             toggleValues(false);
