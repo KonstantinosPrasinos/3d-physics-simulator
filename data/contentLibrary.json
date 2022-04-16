@@ -3,5 +3,10 @@
         "title": "Simple Freefall 1",
         "thumbnail": "simple-freefall.png",
         "data": "simple-freefall.json"
+    },
+    {
+        "title": "Simple Collision 1",
+        "thumbnail": "simple-collision.png",
+        "data": "simple-collision.json"
     }
 ]
